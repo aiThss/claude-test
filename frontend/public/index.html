@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="page-title">BioLink - Loading...</title>
+    <meta id="meta-desc" name="description" content="My Bio Link Page" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0f0f1a;
+            --card: #1a1a2e;
+            --primary: #6c63ff;
+            --secondary: #ff6584;
+            --text: #ffffff;
+            --subtext: #a0a0c0;
+            --font: 'Inter', sans-serif;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: var(--bg-style, linear-gradient(135deg, #0f0f1a 0%, #1a1a3e 50%, #0f0f2a 100%));
+            background-size: 400% 400%;
+            animation: gradientShift 12s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .bg-particles {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0;
+            animation: float 8s infinite;
+        }
+
+        @keyframes float {
+            0% {
+                opacity: 0;
+                transform: translateY(100vh) scale(0);
+            }
+
+            10% {
+                opacity: 0.6;
+            }
+
+            90% {
+                opacity: 0.3;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-10vh) scale(1.5);
+            }
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 40px 20px 60px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Cover image */
+        .cover-wrap {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        .cover-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.5);
+        }
+
+        .cover-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 40%, var(--bg) 100%);
+        }
+
+        /* Profile section */
+        .profile-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding-top: 40px;
+        }
+
+        .avatar-wrap {
+            position: relative;
+            width: 110px;
+            height: 110px;
+            margin-bottom: 16px;
+        }
+
+        .avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 0 6px rgba(108, 99, 255, 0.15), 0 8px 32px rgba(0, 0, 0, 0.5);
+            animation: avatarPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes avatarPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 6px rgba(108, 99, 255, 0.15), 0 8px 32px rgba(0, 0, 0, 0.5);
+            }
+
+            50% {
+                box-shadow: 0 0 0 10px rgba(108, 99, 255, 0.05), 0 8px 32px rgba(108, 99, 255, 0.3);
+            }
+        }
+
+        .avatar-placeholder {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            font-weight: 700;
+            color: white;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 6px rgba(108, 99, 255, 0.15), 0 8px 32px rgba(0, 0, 0, 0.5);
+            animation: avatarPulse 3s ease-in-out infinite;
+        }
+
+        .display-name {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .bio-text {
+            font-size: 0.9rem;
+            color: var(--subtext);
+            line-height: 1.7;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+
+        /* Social icons */
+        .socials-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .social-icon:hover {
+            transform: translateY(-4px) scale(1.15);
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 8px 20px rgba(108, 99, 255, 0.4);
+        }
+
+        /* Divider */
+        .divider {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+            margin: 8px 0 24px;
+        }
+
+        /* Links */
+        .links-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .link-btn {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 20px;
+            background: var(--card);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .link-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+
+        .link-btn:hover::before {
+            opacity: 0.12;
+        }
+
+        .link-btn:hover {
+            transform: translateY(-3px) scale(1.01);
+            border-color: var(--primary);
+            box-shadow: 0 8px 32px rgba(108, 99, 255, 0.25);
+        }
+
+        .link-btn:active {
+            transform: scale(0.98);
+        }
+
+        .link-btn.pill {
+            border-radius: 100px;
+        }
+
+        .link-btn.square {
+            border-radius: 6px;
+        }
+
+        .link-btn.glassmorphism {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .link-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            z-index: 1;
+            box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+        }
+
+        .link-title {
+            flex: 1;
+            font-weight: 600;
+            font-size: 0.95rem;
+            z-index: 1;
+        }
+
+        .link-arrow {
+            z-index: 1;
+            opacity: 0.4;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .link-btn:hover .link-arrow {
+            opacity: 1;
+            transform: translateX(4px);
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 48px;
+            text-align: center;
+            color: var(--subtext);
+            font-size: 0.78rem;
+            opacity: 0.5;
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* Stats badge */
+        .views-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            color: var(--subtext);
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Loading */
+        .loading-screen {
+            position: fixed;
+            inset: 0;
+            background: #0f0f1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(108, 99, 255, 0.2);
+            border-top-color: #6c63ff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: #a0a0c0;
+            font-size: 0.9rem;
+        }
+
+        /* Not found */
+        .not-found {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .not-found h1 {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .not-found p {
+            color: var(--subtext);
+            margin-bottom: 24px;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 24px 16px 48px;
+            }
+
+            .display-name {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* Entry animations */
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeSlideUp 0.5s ease both;
+        }
+
+        .link-btn {
+            animation: fadeSlideUp 0.5s ease both;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading">
+        <div class="loader"></div>
+        <p class="loading-text">Đang tải...</p>
+    </div>
+
+    <!-- Background -->
+    <div class="bg-canvas" id="bgCanvas"></div>
+    <div class="bg-particles" id="particles"></div>
+
+    <!-- Main Content -->
+    <div class="container" id="main-content" style="display:none;">
+        <div class="profile-section animate-in">
+
+            <!-- Avatar -->
+            <div class="avatar-wrap" id="avatarWrap"></div>
+
+            <!-- Name -->
+            <h1 class="display-name" id="displayName"></h1>
+
+            <!-- Views -->
+            <div class="views-badge" id="viewsBadge" style="display:none;">
+                <i class="fa-solid fa-eye"></i>
+                <span id="viewsCount"></span>
+            </div>
+
+            <!-- Bio -->
+            <p class="bio-text" id="bioText"></p>
+
+            <!-- Socials -->
+            <div class="socials-row" id="socialsRow"></div>
+
+            <div class="divider"></div>
+        </div>
+
+        <!-- Links -->
+        <div class="links-section" id="linksSection"></div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Tạo trang của bạn với <a href="/admin/">BioLink</a> ✨</p>
+        </div>
+    </div>
+
+    <!-- Not Found -->
+    <div class="container" id="not-found" style="display:none;">
+        <div class="not-found animate-in">
+            <h1>404</h1>
+            <p>Không tìm thấy trang này</p>
+            <a href="/" style="color: var(--primary);">Về trang chủ</a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000'
+            : '';
+
+        // Get username from path or query
+        function getUsername() {
+            const path = window.location.pathname;
+            const segments = path.split('/').filter(Boolean);
+            if (segments[0] && segments[0] !== 'admin') return segments[0];
+            const params = new URLSearchParams(window.location.search);
+            return params.get('u') || null;
+        }
+
+        // Social platform icons map
+        const socialIcons = {
+            facebook: 'fa-brands fa-facebook-f',
+            instagram: 'fa-brands fa-instagram',
+            twitter: 'fa-brands fa-x-twitter',
+            tiktok: 'fa-brands fa-tiktok',
+            youtube: 'fa-brands fa-youtube',
+            linkedin: 'fa-brands fa-linkedin-in',
+            github: 'fa-brands fa-github',
+            pinterest: 'fa-brands fa-pinterest-p',
+            snapchat: 'fa-brands fa-snapchat',
+            discord: 'fa-brands fa-discord',
+            telegram: 'fa-brands fa-telegram',
+            website: 'fa-solid fa-globe',
+            email: 'fa-solid fa-envelope',
+            phone: 'fa-solid fa-phone',
+            other: 'fa-solid fa-link'
+        };
+
+        // Social colors
+        const socialColors = {
+            facebook: '#1877F2', instagram: '#E4405F', twitter: '#000000',
+            tiktok: '#010101', youtube: '#FF0000', linkedin: '#0A66C2',
+            github: '#333', pinterest: '#E60023', snapchat: '#FFFC00',
+            discord: '#5865F2', telegram: '#229ED9', email: '#6c63ff',
+            phone: '#25D366', website: '#6c63ff', other: '#6c63ff'
+        };
+
+        // Create particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.animationDelay = Math.random() * 8 + 's';
+                p.style.animationDuration = (6 + Math.random() * 6) + 's';
+                p.style.width = p.style.height = (1 + Math.random() * 3) + 'px';
+                container.appendChild(p);
+            }
+        }
+
+        function applyTheme(theme) {
+            const root = document.documentElement;
+            root.style.setProperty('--bg', theme.backgroundColor);
+            root.style.setProperty('--card', theme.cardColor);
+            root.style.setProperty('--primary', theme.primaryColor);
+            root.style.setProperty('--secondary', theme.secondaryColor);
+            root.style.setProperty('--text', theme.textColor);
+            root.style.setProperty('--subtext', theme.subtextColor);
+            root.style.setProperty('--font', `'${theme.fontFamily}', sans-serif`);
+
+            // Background
+            const canvas = document.getElementById('bgCanvas');
+            if (theme.backgroundStyle === 'gradient') {
+                canvas.style.background = theme.backgroundGradient || `linear-gradient(135deg, ${theme.backgroundColor} 0%, #1a1a3e 100%)`;
+            } else if (theme.backgroundStyle === 'image' && theme.backgroundImage) {
+                canvas.style.background = `url(${theme.backgroundImage}) center/cover`;
+            } else if (theme.backgroundStyle === 'mesh') {
+                canvas.style.background = `
+        radial-gradient(at 40% 20%, ${theme.primaryColor}33 0px, transparent 50%),
+        radial-gradient(at 80% 0%, ${theme.secondaryColor}22 0px, transparent 50%),
+        radial-gradient(at 0% 50%, ${theme.primaryColor}22 0px, transparent 50%),
+        ${theme.backgroundColor}
+      `;
+            } else {
+                canvas.style.background = theme.backgroundColor;
+                canvas.style.animation = 'none';
+            }
+
+            // Disable animations if not enabled
+            if (!theme.animationEnabled) {
+                canvas.style.animation = 'none';
+            }
+        }
+
+        // Render profile
+        function renderProfile(data) {
+            // Set meta
+            document.getElementById('page-title').textContent = data.metaTitle || `${data.displayName} | BioLink`;
+            document.getElementById('meta-desc').content = data.metaDescription || data.bio || '';
+
+            // Apply theme
+            if (data.theme) applyTheme(data.theme);
+
+            // Avatar
+            const avatarWrap = document.getElementById('avatarWrap');
+            if (data.avatar) {
+                const img = document.createElement('img');
+                img.src = API_BASE + data.avatar;
+                img.alt = data.displayName;
+                img.className = 'avatar';
+                avatarWrap.appendChild(img);
+            } else {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'avatar-placeholder';
+                placeholder.textContent = (data.displayName || data.username || '?')[0].toUpperCase();
+                avatarWrap.appendChild(placeholder);
+            }
+
+            // Name
+            document.getElementById('displayName').textContent = data.displayName || data.username;
+
+            // Bio
+            const bioEl = document.getElementById('bioText');
+            if (data.bio) {
+                bioEl.textContent = data.bio;
+            } else {
+                bioEl.style.display = 'none';
+            }
+
+            // Socials
+            const socialsRow = document.getElementById('socialsRow');
+            if (data.socials && data.socials.length > 0) {
+                data.socials.forEach(social => {
+                    const a = document.createElement('a');
+                    a.href = social.url;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    a.className = 'social-icon';
+                    a.title = social.platform;
+                    a.style.background = socialColors[social.platform] + '22' || 'rgba(255,255,255,0.08)';
+                    a.style.borderColor = socialColors[social.platform] + '33' || 'rgba(255,255,255,0.1)';
+                    a.innerHTML = `<i class="${socialIcons[social.platform] || socialIcons.other}"></i>`;
+                    a.addEventListener('mouseenter', () => {
+                        a.style.background = socialColors[social.platform] || '#6c63ff';
+                        a.style.borderColor = socialColors[social.platform] || '#6c63ff';
+                    });
+                    a.addEventListener('mouseleave', () => {
+                        a.style.background = socialColors[social.platform] + '22' || 'rgba(255,255,255,0.08)';
+                        a.style.borderColor = socialColors[social.platform] + '33' || 'rgba(255,255,255,0.1)';
+                    });
+                    socialsRow.appendChild(a);
+                });
+            } else {
+                socialsRow.style.display = 'none';
+            }
+
+            // Links
+            const linksSection = document.getElementById('linksSection');
+            const buttonStyle = data.theme?.buttonStyle || 'rounded';
+
+            if (data.links && data.links.length > 0) {
+                data.links.forEach((link, index) => {
+                    const btn = document.createElement('a');
+                    btn.href = link.url;
+                    btn.target = '_blank';
+                    btn.rel = 'noopener noreferrer';
+                    btn.className = `link-btn ${buttonStyle}`;
+                    btn.style.animationDelay = `${index * 0.08}s`;
+
+                    const iconEl = document.createElement('div');
+                    iconEl.className = 'link-icon';
+                    iconEl.innerHTML = `<i class="${link.icon || 'fa-solid fa-link'}"></i>`;
+
+                    const titleEl = document.createElement('span');
+                    titleEl.className = 'link-title';
+                    titleEl.textContent = link.title;
+
+                    const arrowEl = document.createElement('i');
+                    arrowEl.className = 'fa-solid fa-chevron-right link-arrow';
+
+                    btn.appendChild(iconEl);
+                    btn.appendChild(titleEl);
+                    btn.appendChild(arrowEl);
+
+                    // Track click
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        fetch(`${API_BASE}/api/profile/${data.username}/click/${link._id}`, { method: 'POST' }).catch(() => { });
+                        setTimeout(() => { window.open(link.url, '_blank', 'noopener,noreferrer'); }, 100);
+                    });
+
+                    linksSection.appendChild(btn);
+                });
+            } else {
+                linksSection.innerHTML = `
+        <div style="text-align:center; color: var(--subtext); padding: 40px 0;">
+          <i class="fa-solid fa-link" style="font-size:2rem; margin-bottom:12px; opacity:0.3;"></i>
+          <p>Chưa có link nào được thêm</p>
+        </div>`;
+            }
+        }
+
+        async function loadProfile() {
+            const username = getUsername();
+            if (!username) {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('not-found').style.display = 'flex';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/profile/${username}`);
+                if (!res.ok) throw new Error('Not found');
+                const data = await res.json();
+
+                renderProfile(data);
+
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('main-content').style.display = 'flex';
+            } catch (error) {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('not-found').style.display = 'flex';
+            }
+        }
+
+        // Init
+        createParticles();
+        loadProfile();
+    </script>
+</body>
+
+</html>

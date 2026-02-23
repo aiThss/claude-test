@@ -28,18 +28,11 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Root / → hiển thị thẳng profile của owner
+// Root / → redirect thẳng đến profile của owner
 app.get('/', (req, res) => {
   const username = process.env.PROFILE_USERNAME || '';
   if (!username) return res.redirect('/admin/');
-  // Serve index.html và inject username qua query để frontend biết
-  const html = require('fs').readFileSync(path.join(publicDir, 'index.html'), 'utf8');
-  // Inject script để set username tự động khi vào root
-  const injected = html.replace(
-    '</head>',
-    `<script>window.__OWNER_USERNAME__ = "${username}";</script>\n</head>`
-  );
-  res.send(injected);
+  res.redirect(301, `/${username}`);
 });
 
 // Admin routes → serve admin/index.html

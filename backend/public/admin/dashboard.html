@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BioLink - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="./dashboard.css" />
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon"><i class="fa-solid fa-link"></i></div>
+            <h2>BioLink</h2>
+            <p>Admin Panel</p>
+        </div>
+        <nav class="nav-menu">
+            <button class="nav-item active" onclick="showSection('stats')"><i
+                    class="fa-solid fa-chart-bar"></i><span>Thống kê</span></button>
+            <button class="nav-item" onclick="showSection('profile')"><i class="fa-solid fa-user"></i><span>Hồ
+                    sơ</span></button>
+            <button class="nav-item" onclick="showSection('links')"><i
+                    class="fa-solid fa-link"></i><span>Links</span></button>
+            <button class="nav-item" onclick="showSection('socials')"><i class="fa-solid fa-share-nodes"></i><span>Mạng
+                    xã hội</span></button>
+            <button class="nav-item" onclick="showSection('theme')"><i class="fa-solid fa-palette"></i><span>Giao
+                    diện</span></button>
+            <button class="nav-item" onclick="showSection('settings')"><i class="fa-solid fa-gear"></i><span>Cài
+                    đặt</span></button>
+        </nav>
+        <div class="sidebar-bottom">
+            <div class="user-info">
+                <div class="user-avatar" id="sidebarInitial">?</div>
+                <span class="user-name" id="sidebarName">...</span>
+                <button class="btn-logout" onclick="logout()" title="Đăng xuất"><i
+                        class="fa-solid fa-right-from-bracket"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+        <!-- STATS -->
+        <section class="section active" id="section-stats">
+            <div class="page-header">
+                <h1>📊 Thống kê</h1>
+                <p>Tổng quan lượt xem và click</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="icon" style="background:rgba(108,99,255,0.15);color:#6c63ff;"><i
+                            class="fa-solid fa-eye"></i></div>
+                    <div class="stat-value" id="statViews">—</div>
+                    <div class="stat-label">Tổng lượt xem</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon" style="background:rgba(255,101,132,0.15);color:#ff6584;"><i
+                            class="fa-solid fa-cursor"></i></div>
+                    <div class="stat-value" id="statClicks">—</div>
+                    <div class="stat-label">Tổng lượt click</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon" style="background:rgba(74,222,128,0.15);color:#4ade80;"><i
+                            class="fa-solid fa-link"></i></div>
+                    <div class="stat-value" id="statLinks">—</div>
+                    <div class="stat-label">Số links</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-fire"></i> Click theo link</div>
+                <div class="bar-chart" id="barChart">
+                    <p style="color:var(--sub);font-size:0.85rem;">Chưa có dữ liệu</p>
+                </div>
+            </div>
+            <div class="card" style="padding:16px 20px;">
+                <div class="profile-link-box">
+                    <i class="fa-solid fa-globe" style="color:var(--primary);"></i>
+                    <span id="profilePublicUrl">—</span>
+                    <button class="btn btn-sm btn-ghost" onclick="copyUrl()"><i class="fa-solid fa-copy"></i></button>
+                    <a id="profilePublicLink" target="_blank" class="btn btn-sm btn-primary"><i
+                            class="fa-solid fa-arrow-up-right-from-square"></i> Xem</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROFILE -->
+        <section class="section" id="section-profile">
+            <div class="page-header">
+                <h1>👤 Hồ sơ cá nhân</h1>
+                <p>Cập nhật thông tin và ảnh đại diện</p>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-image"></i> Ảnh đại diện</div>
+                <div class="avatar-upload">
+                    <div class="avatar-preview" id="avatarPreview">?</div>
+                    <div>
+                        <div class="upload-btn btn btn-ghost" style="margin-bottom:8px;">
+                            <i class="fa-solid fa-upload"></i> Tải ảnh lên
+                            <input type="file" accept="image/*" onchange="uploadAvatar(this)" />
+                        </div>
+                        <p style="color:var(--sub);font-size:0.78rem;">JPG, PNG, GIF. Tối đa 5MB</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-pen"></i> Thông tin cơ bản</div>
+                <div class="form-group">
+                    <label>Tên hiển thị</label>
+                    <input type="text" class="form-control" id="inf-displayName" placeholder="Tên của bạn" />
+                </div>
+                <div class="form-group">
+                    <label>Giới thiệu bản thân (Bio)</label>
+                    <textarea class="form-control" id="inf-bio" placeholder="Viết vài dòng về bạn..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tiêu đề trang (SEO)</label>
+                        <input type="text" class="form-control" id="inf-metaTitle" placeholder="Tên | BioLink" />
+                    </div>
+                    <div class="form-group">
+                        <label>Mô tả trang (SEO)</label>
+                        <input type="text" class="form-control" id="inf-metaDesc" placeholder="Mô tả ngắn..." />
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="saveProfile()"><i class="fa-solid fa-save"></i> Lưu thông
+                    tin</button>
+            </div>
+        </section>
+
+        <!-- LINKS -->
+        <section class="section" id="section-links">
+            <div class="page-header">
+                <h1>🔗 Quản lý Links</h1>
+                <p>Thêm, sửa, xóa các đường dẫn</p>
+            </div>
+            <div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <div class="card-title" style="margin:0;"><i class="fa-solid fa-list"></i> Danh sách links</div>
+                    <button class="btn btn-primary btn-sm" onclick="openAddLinkModal()"><i class="fa-solid fa-plus"></i>
+                        Thêm link</button>
+                </div>
+                <div id="linksList">
+                    <p style="color:var(--sub);text-align:center;padding:20px;font-size:0.85rem;">Chưa có link nào</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SOCIALS -->
+        <section class="section" id="section-socials">
+            <div class="page-header">
+                <h1>📱 Mạng xã hội</h1>
+                <p>Thêm icon mạng xã hội vào trang của bạn</p>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-icons"></i> Các tài khoản mạng xã hội</div>
+                <div class="social-grid" id="socialGrid"></div>
+                <button class="btn btn-primary" style="margin-top:20px;" onclick="saveSocials()"><i
+                        class="fa-solid fa-save"></i> Lưu</button>
+            </div>
+        </section>
+
+        <!-- THEME -->
+        <section class="section" id="section-theme">
+            <div class="page-header">
+                <h1>🎨 Tùy chỉnh giao diện</h1>
+                <p>Chọn màu sắc và phong cách cho trang của bạn</p>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Bộ theme có sẵn</div>
+                <div class="theme-grid" id="themeGrid"></div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-droplet"></i> Tùy chỉnh màu sắc</div>
+                <div class="color-row" style="margin-bottom:16px;">
+                    <div class="color-item"><label>Màu nền</label><input type="color" id="col-bg" /></div>
+                    <div class="color-item"><label>Màu card</label><input type="color" id="col-card" /></div>
+                    <div class="color-item"><label>Màu chính</label><input type="color" id="col-primary" /></div>
+                    <div class="color-item"><label>Màu phụ</label><input type="color" id="col-secondary" /></div>
+                    <div class="color-item"><label>Màu chữ</label><input type="color" id="col-text" /></div>
+                    <div class="color-item"><label>Màu mô tả</label><input type="color" id="col-subtext" /></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Font chữ</label>
+                        <select class="form-control" id="th-font">
+                            <option value="Inter">Inter (Mặc định)</option>
+                            <option value="Poppins">Poppins</option>
+                            <option value="Outfit">Outfit</option>
+                            <option value="Space Grotesk">Space Grotesk</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kiểu nút</label>
+                        <select class="form-control" id="th-btnStyle">
+                            <option value="rounded">Bo góc vừa</option>
+                            <option value="pill">Bo tròn hoàn toàn</option>
+                            <option value="square">Vuông góc</option>
+                            <option value="glassmorphism">Glassmorphism</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kiểu nền</label>
+                        <select class="form-control" id="th-bgStyle">
+                            <option value="gradient">Gradient</option>
+                            <option value="solid">Màu đồng nhất</option>
+                            <option value="mesh">Mesh gradient</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Hiệu ứng chuyển động</label>
+                        <select class="form-control" id="th-anim">
+                            <option value="true">Bật</option>
+                            <option value="false">Tắt</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="saveTheme()"><i class="fa-solid fa-save"></i> Lưu giao
+                    diện</button>
+            </div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section class="section" id="section-settings">
+            <div class="page-header">
+                <h1>⚙️ Cài đặt</h1>
+                <p>Đổi mật khẩu và cài đặt tài khoản</p>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-lock"></i> Đổi mật khẩu</div>
+                <div class="form-group">
+                    <label>Mật khẩu hiện tại</label>
+                    <input type="password" class="form-control" id="pw-current" placeholder="••••••••" />
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu mới</label>
+                    <input type="password" class="form-control" id="pw-new" placeholder="Ít nhất 6 ký tự" />
+                </div>
+                <div class="form-group">
+                    <label>Xác nhận mật khẩu mới</label>
+                    <input type="password" class="form-control" id="pw-confirm" placeholder="••••••••" />
+                </div>
+                <button class="btn btn-primary" onclick="changePassword()"><i class="fa-solid fa-key"></i> Đổi mật
+                    khẩu</button>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-circle-info"></i> Thông tin tài khoản</div>
+                <p style="color:var(--sub);font-size:0.875rem;">URL trang của bạn: <strong style="color:var(--primary)"
+                        id="accountUrl">—</strong></p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal thêm/sửa link -->
+    <div class="modal-overlay" id="linkModal">
+        <div class="modal">
+            <h3 id="modalTitle">➕ Thêm link mới</h3>
+            <input type="hidden" id="modal-linkId" />
+            <div class="form-group">
+                <label>Tiêu đề link *</label>
+                <input type="text" class="form-control" id="modal-title" placeholder="Ví dụ: Website của tôi" />
+            </div>
+            <div class="form-group">
+                <label>URL *</label>
+                <input type="url" class="form-control" id="modal-url" placeholder="https://..." />
+            </div>
+            <div class="form-group">
+                <label>Icon (Font Awesome class)</label>
+                <input type="text" class="form-control" id="modal-icon" placeholder="fa-solid fa-link" />
+                <div class="icon-grid" id="iconGrid"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal()">Hủy</button>
+                <button class="btn btn-primary" onclick="saveLink()"><i class="fa-solid fa-save"></i> Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const API = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+        let profileData = null;
+        let editingLinkId = null;
+
+        // Auth check
+        const token = localStorage.getItem('biolink_token');
+        if (!token) window.location.href = '/admin/';
+
+        function authHeader() { return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }; }
+
+        // Toast
+        function toast(msg, type = 'success') {
+            const el = document.getElementById('toast');
+            el.textContent = msg; el.className = `toast ${type} show`;
+            setTimeout(() => el.classList.remove('show'), 3500);
+        }
+
+        // Navigation
+        function showSection(name) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(`section-${name}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // Load all data
+        async function loadAll() {
+            try {
+                const res = await fetch(`${API}/api/profile/admin/me`, { headers: authHeader() });
+                if (res.status === 401) { logout(); return; }
+                profileData = await res.json();
+                renderAll();
+                loadStats();
+            } catch (e) { toast('Lỗi tải dữ liệu', 'error'); }
+        }
+
+        function renderAll() {
+            const p = profileData;
+            const user = JSON.parse(localStorage.getItem('biolink_user') || '{}');
+
+            // Sidebar
+            document.getElementById('sidebarInitial').textContent = (p.displayName || p.username || '?')[0].toUpperCase();
+            document.getElementById('sidebarName').textContent = p.displayName || p.username;
+
+            // URL
+            const url = `${window.location.origin}/${p.username}`;
+            document.getElementById('profilePublicUrl').textContent = url;
+            document.getElementById('profilePublicLink').href = url;
+            document.getElementById('accountUrl').textContent = url;
+
+            // Profile form
+            document.getElementById('inf-displayName').value = p.displayName || '';
+            document.getElementById('inf-bio').value = p.bio || '';
+            document.getElementById('inf-metaTitle').value = p.metaTitle || '';
+            document.getElementById('inf-metaDesc').value = p.metaDescription || '';
+
+            // Avatar
+            const ap = document.getElementById('avatarPreview');
+            if (p.avatar) {
+                ap.innerHTML = `<img src="${API}${p.avatar}" />`;
+            } else {
+                ap.textContent = (p.displayName || p.username || '?')[0].toUpperCase();
+            }
+
+            // Theme
+            renderThemeForm(p.theme || {});
+            renderLinks(p.links || []);
+            renderSocials(p.socials || []);
+        }
+
+        // ─── STATS ───
+        async function loadStats() {
+            const res = await fetch(`${API}/api/profile/admin/stats`, { headers: authHeader() });
+            const data = await res.json();
+            document.getElementById('statViews').textContent = data.totalViews ?? 0;
+            document.getElementById('statClicks').textContent = data.totalClicks ?? 0;
+            document.getElementById('statLinks').textContent = (profileData.links || []).length;
+
+            const chart = document.getElementById('barChart');
+            if (!data.links || data.links.length === 0) return;
+            const max = Math.max(...data.links.map(l => l.clicks), 1);
+            chart.innerHTML = data.links.map(l => `
+    <div class="bar-item">
+      <span class="bar-label">${l.title}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${(l.clicks / max * 100).toFixed(1)}%"></div></div>
+      <span class="bar-count">${l.clicks}</span>
+    </div>`).join('');
+        }
+
+        function copyUrl() {
+            navigator.clipboard.writeText(document.getElementById('profilePublicUrl').textContent);
+            toast('Đã copy URL!');
+        }
+
+        // ─── PROFILE ───
+        async function saveProfile() {
+            const body = {
+                displayName: document.getElementById('inf-displayName').value,
+                bio: document.getElementById('inf-bio').value,
+                metaTitle: document.getElementById('inf-metaTitle').value,
+                metaDescription: document.getElementById('inf-metaDesc').value
+            };
+            const res = await fetch(`${API}/api/profile/admin/info`, { method: 'PUT', headers: authHeader(), body: JSON.stringify(body) });
+            const data = await res.json();
+            if (res.ok) { toast('Lưu thành công! ✅'); profileData = data.profile; renderAll(); }
+            else toast(data.message, 'error');
+        }
+
+        async function uploadAvatar(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('avatar', file);
+            const res = await fetch(`${API}/api/profile/admin/upload/avatar`, {
+                method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: formData
+            });
+            const data = await res.json();
+            if (res.ok) {
+                toast('Upload ảnh thành công! 🎉');
+                document.getElementById('avatarPreview').innerHTML = `<img src="${API}${data.url}" />`;
+                profileData.avatar = data.url;
+            } else toast(data.message, 'error');
+        }
+
+        // ─── LINKS ───
+        const ICONS = [
+            'fa-solid fa-link', 'fa-solid fa-globe', 'fa-solid fa-envelope', 'fa-solid fa-phone',
+            'fa-solid fa-store', 'fa-solid fa-cart-shopping', 'fa-solid fa-video', 'fa-solid fa-music',
+            'fa-solid fa-camera', 'fa-solid fa-pen-nib', 'fa-solid fa-briefcase', 'fa-solid fa-star',
+            'fa-solid fa-heart', 'fa-solid fa-fire', 'fa-solid fa-bolt', 'fa-solid fa-rocket',
+            'fa-brands fa-youtube', 'fa-brands fa-instagram', 'fa-brands fa-facebook-f',
+            'fa-brands fa-tiktok', 'fa-brands fa-twitter', 'fa-brands fa-github',
+            'fa-brands fa-telegram', 'fa-brands fa-discord', 'fa-brands fa-spotify',
+            'fa-brands fa-linkedin-in', 'fa-brands fa-patreon', 'fa-brands fa-paypal'
+        ];
+
+        function renderLinks(links) {
+            const el = document.getElementById('linksList');
+            if (!links.length) { el.innerHTML = '<p style="color:var(--sub);text-align:center;padding:20px;font-size:0.85rem;">Chưa có link nào. Nhấn "+ Thêm link" để bắt đầu!</p>'; return; }
+            el.innerHTML = links.map(link => `
+    <div class="link-item" id="li-${link._id}">
+      <span class="link-drag"><i class="fa-solid fa-grip-vertical"></i></span>
+      <div class="link-icon-wrap"><i class="${link.icon || 'fa-solid fa-link'}"></i></div>
+      <div class="link-info">
+        <div class="title">${link.title}</div>
+        <div class="url">${link.url}</div>
+      </div>
+      <span class="link-clicks"><i class="fa-solid fa-cursor"></i> ${link.clicks || 0}</span>
+      <label class="toggle"><input type="checkbox" ${link.active ? 'checked' : ''} onchange="toggleLink('${link._id}', this.checked)" /><span class="slider"></span></label>
+      <button class="btn btn-sm btn-ghost" onclick="openEditLinkModal('${link._id}')"><i class="fa-solid fa-pen"></i></button>
+      <button class="btn btn-sm btn-danger" onclick="deleteLink('${link._id}')"><i class="fa-solid fa-trash"></i></button>
+    </div>`).join('');
+        }
+
+        function openAddLinkModal() {
+            editingLinkId = null;
+            document.getElementById('modalTitle').textContent = '➕ Thêm link mới';
+            document.getElementById('modal-linkId').value = '';
+            document.getElementById('modal-title').value = '';
+            document.getElementById('modal-url').value = '';
+            document.getElementById('modal-icon').value = 'fa-solid fa-link';
+            renderIconGrid('fa-solid fa-link');
+            document.getElementById('linkModal').classList.add('open');
+        }
+
+        function openEditLinkModal(id) {
+            const link = profileData.links.find(l => l._id === id);
+            if (!link) return;
+            editingLinkId = id;
+            document.getElementById('modalTitle').textContent = '✏️ Sửa link';
+            document.getElementById('modal-linkId').value = id;
+            document.getElementById('modal-title').value = link.title;
+            document.getElementById('modal-url').value = link.url;
+            document.getElementById('modal-icon').value = link.icon || 'fa-solid fa-link';
+            renderIconGrid(link.icon || 'fa-solid fa-link');
+            document.getElementById('linkModal').classList.add('open');
+        }
+
+        function renderIconGrid(selected) {
+            document.getElementById('iconGrid').innerHTML = ICONS.map(ic =>
+                `<div class="icon-opt ${ic === selected ? 'selected' : ''}" onclick="selectIcon('${ic}')"><i class="${ic}"></i></div>`
+            ).join('');
+        }
+
+        function selectIcon(ic) {
+            document.getElementById('modal-icon').value = ic;
+            renderIconGrid(ic);
+        }
+
+        function closeModal() { document.getElementById('linkModal').classList.remove('open'); }
+
+        async function saveLink() {
+            const body = {
+                title: document.getElementById('modal-title').value,
+                url: document.getElementById('modal-url').value,
+                icon: document.getElementById('modal-icon').value
+            };
+            if (!body.title || !body.url) { toast('Vui lòng điền đầy đủ thông tin', 'error'); return; }
+            const url = editingLinkId ? `${API}/api/profile/admin/links/${editingLinkId}` : `${API}/api/profile/admin/links`;
+            const method = editingLinkId ? 'PUT' : 'POST';
+            const res = await fetch(url, { method, headers: authHeader(), body: JSON.stringify(body) });
+            const data = await res.json();
+            if (res.ok) {
+                toast(editingLinkId ? 'Cập nhật thành công! ✅' : 'Thêm link thành công! 🎉');
+                profileData.links = data.links;
+                renderLinks(data.links);
+                closeModal();
+            } else toast(data.message, 'error');
+        }
+
+        async function toggleLink(id, active) {
+            await fetch(`${API}/api/profile/admin/links/${id}`, { method: 'PUT', headers: authHeader(), body: JSON.stringify({ active }) });
+        }
+
+        async function deleteLink(id) {
+            if (!confirm('Xóa link này?')) return;
+            const res = await fetch(`${API}/api/profile/admin/links/${id}`, { method: 'DELETE', headers: authHeader() });
+            const data = await res.json();
+            if (res.ok) { toast('Đã xóa link! 🗑️'); profileData.links = data.links; renderLinks(data.links); }
+            else toast(data.message, 'error');
+        }
+
+        // ─── SOCIALS ───
+        const PLATFORMS = [
+            { id: 'facebook', label: 'Facebook', icon: 'fa-brands fa-facebook-f', color: '#1877F2' },
+            { id: 'instagram', label: 'Instagram', icon: 'fa-brands fa-instagram', color: '#E4405F' },
+            { id: 'tiktok', label: 'TikTok', icon: 'fa-brands fa-tiktok', color: '#010101' },
+            { id: 'youtube', label: 'YouTube', icon: 'fa-brands fa-youtube', color: '#FF0000' },
+            { id: 'twitter', label: 'X (Twitter)', icon: 'fa-brands fa-x-twitter', color: '#000000' },
+            { id: 'linkedin', label: 'LinkedIn', icon: 'fa-brands fa-linkedin-in', color: '#0A66C2' },
+            { id: 'github', label: 'GitHub', icon: 'fa-brands fa-github', color: '#333333' },
+            { id: 'discord', label: 'Discord', icon: 'fa-brands fa-discord', color: '#5865F2' },
+            { id: 'telegram', label: 'Telegram', icon: 'fa-brands fa-telegram', color: '#229ED9' },
+            { id: 'spotify', label: 'Spotify', icon: 'fa-brands fa-spotify', color: '#1DB954' },
+            { id: 'email', label: 'Email', icon: 'fa-solid fa-envelope', color: '#6c63ff' },
+            { id: 'website', label: 'Website', icon: 'fa-solid fa-globe', color: '#6c63ff' }
+        ];
+
+        function renderSocials(socials) {
+            const map = {};
+            (socials || []).forEach(s => { map[s.platform] = s.url; });
+            document.getElementById('socialGrid').innerHTML = PLATFORMS.map(p => `
+    <div class="social-item">
+      <div class="social-platform-icon" style="background:${p.color}22;color:${p.color};"><i class="${p.icon}"></i></div>
+      <input type="url" id="soc-${p.id}" value="${map[p.id] || ''}" placeholder="${p.label} URL" />
+    </div>`).join('');
+        }
+
+        async function saveSocials() {
+            const socials = PLATFORMS
+                .map(p => ({ platform: p.id, url: document.getElementById(`soc-${p.id}`).value.trim(), active: true }))
+                .filter(s => s.url);
+            const res = await fetch(`${API}/api/profile/admin/socials`, { method: 'PUT', headers: authHeader(), body: JSON.stringify({ socials }) });
+            const data = await res.json();
+            if (res.ok) { toast('Lưu mạng xã hội thành công! ✅'); profileData = data.profile; }
+            else toast(data.message, 'error');
+        }
+
+        // ─── THEME ───
+        const THEMES = [
+            { name: 'Tím đêm', bg: '#0f0f1a', card: '#1a1a2e', primary: '#6c63ff', secondary: '#ff6584', bgStyle: 'gradient', bgGrad: 'linear-gradient(135deg,#0f0f1a,#1a1a3e,#0f0f2a)' },
+            { name: 'Đại dương', bg: '#030b1a', card: '#0a1628', primary: '#00b4d8', secondary: '#90e0ef', bgStyle: 'gradient', bgGrad: 'linear-gradient(135deg,#030b1a,#0a1628,#0d2137)' },
+            { name: 'Hồng mộng', bg: '#1a0a14', card: '#2a1020', primary: '#f72585', secondary: '#b5179e', bgStyle: 'gradient', bgGrad: 'linear-gradient(135deg,#1a0a14,#2d0b22,#1a0a18)' },
+            { name: 'Rừng xanh', bg: '#071a0f', card: '#0d2a18', primary: '#4ade80', secondary: '#22d3ee', bgStyle: 'gradient', bgGrad: 'linear-gradient(135deg,#071a0f,#0d2a18,#071a14)' },
+            { name: 'Hoàng hôn', bg: '#1a0f05', card: '#2a1a08', primary: '#fb923c', secondary: '#fbbf24', bgStyle: 'gradient', bgGrad: 'linear-gradient(135deg,#1a0f05,#2a1508,#1a0a05)' },
+            { name: 'Tối giản', bg: '#111111', card: '#1e1e1e', primary: '#ffffff', secondary: '#888888', bgStyle: 'solid', bgGrad: '' },
+            { name: 'Thiên hà', bg: '#04001a', card: '#0d0028', primary: '#c77dff', secondary: '#e0aaff', bgStyle: 'mesh', bgGrad: '' },
+            { name: 'Đỏ tươi', bg: '#1a0505', card: '#2a0808', primary: '#ef4444', secondary: '#f97316', bgStyle: 'gradient', bgGrad: 'linear-gradient(135deg,#1a0505,#2a0808,#1a0505)' }
+        ];
+
+        function renderThemePresets() {
+            document.getElementById('themeGrid').innerHTML = THEMES.map((t, i) => `
+    <div class="theme-preset" onclick="applyThemePreset(${i})">
+      <div class="theme-preview" style="background:${t.bgGrad || t.bg};"></div>
+      <div class="theme-name" style="background:${t.card};color:${t.primary};">${t.name}</div>
+    </div>`).join('');
+        }
+
+        function applyThemePreset(i) {
+            const t = THEMES[i];
+            document.getElementById('col-bg').value = t.bg;
+            document.getElementById('col-card').value = t.card;
+            document.getElementById('col-primary').value = t.primary;
+            document.getElementById('col-secondary').value = t.secondary;
+            document.getElementById('col-text').value = '#ffffff';
+            document.getElementById('col-subtext').value = '#a0a0c0';
+            document.getElementById('th-bgStyle').value = t.bgStyle;
+            document.querySelectorAll('.theme-preset').forEach((el, j) => el.classList.toggle('selected', i === j));
+        }
+
+        function renderThemeForm(theme) {
+            document.getElementById('col-bg').value = theme.backgroundColor || '#0f0f1a';
+            document.getElementById('col-card').value = theme.cardColor || '#1a1a2e';
+            document.getElementById('col-primary').value = theme.primaryColor || '#6c63ff';
+            document.getElementById('col-secondary').value = theme.secondaryColor || '#ff6584';
+            document.getElementById('col-text').value = theme.textColor || '#ffffff';
+            document.getElementById('col-subtext').value = theme.subtextColor || '#a0a0c0';
+            document.getElementById('th-font').value = theme.fontFamily || 'Inter';
+            document.getElementById('th-btnStyle').value = theme.buttonStyle || 'rounded';
+            document.getElementById('th-bgStyle').value = theme.backgroundStyle || 'gradient';
+            document.getElementById('th-anim').value = theme.animationEnabled !== false ? 'true' : 'false';
+        }
+
+        async function saveTheme() {
+            const theme = {
+                backgroundColor: document.getElementById('col-bg').value,
+                cardColor: document.getElementById('col-card').value,
+                primaryColor: document.getElementById('col-primary').value,
+                secondaryColor: document.getElementById('col-secondary').value,
+                textColor: document.getElementById('col-text').value,
+                subtextColor: document.getElementById('col-subtext').value,
+                fontFamily: document.getElementById('th-font').value,
+                buttonStyle: document.getElementById('th-btnStyle').value,
+                backgroundStyle: document.getElementById('th-bgStyle').value,
+                animationEnabled: document.getElementById('th-anim').value === 'true',
+                backgroundGradient: `linear-gradient(135deg, ${document.getElementById('col-bg').value} 0%, ${document.getElementById('col-card').value} 100%)`
+            };
+            const res = await fetch(`${API}/api/profile/admin/theme`, { method: 'PUT', headers: authHeader(), body: JSON.stringify({ theme }) });
+            const data = await res.json();
+            if (res.ok) { toast('Lưu giao diện thành công! 🎨'); profileData = data.profile; }
+            else toast(data.message, 'error');
+        }
+
+        // ─── SETTINGS ───
+        async function changePassword() {
+            const cur = document.getElementById('pw-current').value;
+            const nw = document.getElementById('pw-new').value;
+            const cf = document.getElementById('pw-confirm').value;
+            if (!cur || !nw || !cf) { toast('Vui lòng điền đầy đủ', 'error'); return; }
+            if (nw !== cf) { toast('Mật khẩu mới không khớp', 'error'); return; }
+            if (nw.length < 6) { toast('Mật khẩu ít nhất 6 ký tự', 'error'); return; }
+            const res = await fetch(`${API}/api/auth/change-password`, { method: 'POST', headers: authHeader(), body: JSON.stringify({ currentPassword: cur, newPassword: nw }) });
+            const data = await res.json();
+            if (res.ok) { toast('Đổi mật khẩu thành công! 🔐'); document.getElementById('pw-current').value = document.getElementById('pw-new').value = document.getElementById('pw-confirm').value = ''; }
+            else toast(data.message, 'error');
+        }
+
+        function logout() {
+            localStorage.removeItem('biolink_token');
+            localStorage.removeItem('biolink_user');
+            window.location.href = '/admin/';
+        }
+
+        // Close modal on outside click
+        document.getElementById('linkModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+        // Init
+        renderThemePresets();
+        loadAll();
+    </script>
+</body>
+
+</html>

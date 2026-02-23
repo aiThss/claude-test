@@ -28,6 +28,11 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Root / → redirect to admin
+app.get('/', (req, res) => {
+  res.redirect('/admin/');
+});
+
 // Admin routes → serve admin/index.html
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(publicDir, 'admin', 'index.html'));

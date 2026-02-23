@@ -367,6 +367,12 @@
         .social-icon svg {
             width: 22px;
             height: 22px;
+            flex-shrink: 0;
+            overflow: visible;
+        }
+
+        .social-icon i {
+            line-height: 1;
             fill: currentColor;
             flex-shrink: 0;
         }
@@ -639,11 +645,9 @@
             return null;
         }
 
-        // ─── Locket SVG icon (locket pendant shape) ───
-        const LOCKET_SVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M12 2.5 C10.5 2.5 9.5 3.3 9.5 4.5 L9.5 5.2 C7.2 5.8 5.5 7.9 5.5 10.5 L5.5 16 C5.5 18.8 7.7 21 10.5 21 L13.5 21 C16.3 21 18.5 18.8 18.5 16 L18.5 10.5 C18.5 7.9 16.8 5.8 14.5 5.2 L14.5 4.5 C14.5 3.3 13.5 2.5 12 2.5Z" fill="white" opacity="0.95"/>
-  <circle cx="12" cy="13.5" r="3.5" fill="#F5A623"/>
-  <path d="M12 11 L12.8 12.7 L14.7 13 L13.35 14.3 L13.65 16.2 L12 15.35 L10.35 16.2 L10.65 14.3 L9.3 13 L11.2 12.7Z" fill="white"/>
+        // ─── Locket SVG: chỉ có trái tim vàng đậm (div đã có nền vàng) ───
+        const LOCKET_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path d="M12 19.5 C11.6 19.2 3.5 13.5 3.5 8 C3.5 5.5 5.7 3.5 8 3.5 C9.8 3.5 11.2 4.5 12 6 C12.8 4.5 14.2 3.5 16 3.5 C18.3 3.5 20.5 5.5 20.5 8 C20.5 13.5 12.4 19.2 12 19.5Z" style="fill: #C07800"/>
 </svg>`;
 
         // ─── Social platforms ───
@@ -660,7 +664,7 @@
             discord: { icon: 'fa-brands fa-discord', color: '#5865F2' },
             telegram: { icon: 'fa-brands fa-telegram', color: '#229ED9' },
             spotify: { icon: 'fa-brands fa-spotify', color: '#1DB954' },
-            locket: { icon: null, svg: LOCKET_SVG, color: '#F5A623' },
+            locket: { icon: null, svg: LOCKET_SVG, color: '#F5B614' },
             email: { icon: 'fa-solid fa-envelope', color: '#6c63ff' },
             phone: { icon: 'fa-solid fa-phone', color: '#25D366' },
             website: { icon: 'fa-solid fa-globe', color: '#6c63ff' },

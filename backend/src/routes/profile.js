@@ -33,10 +33,14 @@ const upload = multer({
 
 // ========== PUBLIC ROUTES ==========
 
-// GET /api/profile/:username - Public profile view
+// GET /api/profile/admin/* routes handled below (defined first)
+
+// GET /api/profile/:username - Public profile view (must NOT match 'admin')
 router.get('/:username', async (req, res) => {
+    const { username } = req.params;
+    if (username === 'admin') return res.status(404).json({ message: 'Not found' });
     try {
-        const profile = await Profile.findOne({ username: req.params.username });
+        const profile = await Profile.findOne({ username });
         if (!profile) {
             return res.status(404).json({ message: 'Không tìm thấy profile' });
         }
@@ -44,7 +48,6 @@ router.get('/:username', async (req, res) => {
         // Increment views
         await Profile.findByIdAndUpdate(profile._id, { $inc: { totalViews: 1 } });
 
-        // Return public data only (no password)
         const publicData = {
             username: profile.username,
             displayName: profile.displayName,

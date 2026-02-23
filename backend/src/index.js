@@ -15,9 +15,17 @@ app.use(express.urlencoded({ extended: true }));
 // Static: uploaded images
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Static: frontend files (index: false prevents auto-serving index.html for /)
+// Static: all frontend assets EXCEPT index.html at root
 const publicDir = path.join(__dirname, '../public');
 app.use(express.static(publicDir, { index: false }));
+
+// --- Config endpoint: inject owner username vào frontend ---
+app.get('/config.js', (req, res) => {
+  const username = process.env.PROFILE_USERNAME || '';
+  res.type('application/javascript');
+  res.set('Cache-Control', 'no-store');
+  res.send(`window.BIOLINK_OWNER = "${username}";`);
+});
 
 // API Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -28,14 +36,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Root / → redirect thẳng đến profile của owner
-app.get('/', (req, res) => {
-  const username = process.env.PROFILE_USERNAME || '';
-  if (!username) return res.redirect('/admin/');
-  res.redirect(301, `/${username}`);
-});
-
-// Admin routes → serve admin/index.html
+// Admin panel
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(publicDir, 'admin', 'index.html'));
 });
@@ -43,21 +44,21 @@ app.get('/admin/*', (req, res) => {
   res.sendFile(path.join(publicDir, 'admin', 'index.html'));
 });
 
-// Catch-all → serve public profile page (/:username)
+// Root / và tất cả route còn lại → public profile page
 app.get('*', (req, res) => {
   res.sendFile(path.join(publicDir, 'index.html'));
 });
 
-// Connect to MongoDB and start server
+// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
-    console.log('✅ Đã kết nối MongoDB');
+    console.log('✅ MongoDB connected');
     app.listen(PORT, () => {
-      console.log(`🚀 Server chạy tại http://localhost:${PORT}`);
+      console.log(`🚀 Server running on port ${PORT}`);
     });
   })
-  .catch((error) => {
-    console.error('❌ Lỗi kết nối MongoDB:', error.message);
+  .catch((err) => {
+    console.error('❌ MongoDB error:', err.message);
     process.exit(1);
   });
 

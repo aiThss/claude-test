@@ -1,39 +1,26 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const Profile = require('../models/Profile');
 const auth = require('../middleware/auth');
 
-// Multer config for image upload
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadDir = path.join(__dirname, '../../uploads');
-        if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const ext = path.extname(file.originalname);
-        cb(null, `${Date.now()}-${Math.random().toString(36).substr(2, 9)}${ext}`);
+// Multer: memory storage (no disk) - store as base64 in MongoDB
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 3 * 1024 * 1024 }, // 3MB max
+    fileFilter: (req, file, cb) => {
+        if (/jpeg|jpg|png|gif|webp/.test(file.mimetype)) cb(null, true);
+        else cb(new Error('Chi chap nhan file anh!'));
     }
 });
 
-const upload = multer({
-    storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-    fileFilter: (req, file, cb) => {
-        const allowed = /jpeg|jpg|png|gif|webp/;
-        const extname = allowed.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowed.test(file.mimetype);
-        if (extname && mimetype) cb(null, true);
-        else cb(new Error('Chỉ chấp nhận file ảnh!'));
-    }
-});
+// Helper: file buffer → base64 data URL
+function toDataUrl(file) {
+    const b64 = file.buffer.toString('base64');
+    return `data:${file.mimetype};base64,${b64}`;
+}
 
 // ========== PUBLIC ROUTES ==========
-
-// GET /api/profile/admin/* routes handled below (defined first)
 
 // GET /api/profile/:username - Public profile view (must NOT match 'admin')
 router.get('/:username', async (req, res) => {
@@ -42,7 +29,7 @@ router.get('/:username', async (req, res) => {
     try {
         const profile = await Profile.findOne({ username });
         if (!profile) {
-            return res.status(404).json({ message: 'Không tìm thấy profile' });
+            return res.status(404).json({ message: 'Khong tim thay profile' });
         }
 
         // Increment views
@@ -64,7 +51,7 @@ router.get('/:username', async (req, res) => {
         res.json(publicData);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Lỗi server' });
+        res.status(500).json({ message: 'Loi server' });
     }
 });
 
@@ -77,7 +64,7 @@ router.post('/:username/click/:linkId', async (req, res) => {
         );
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ message: 'Lỗi server' });
+        res.status(500).json({ message: 'Loi server' });
     }
 });
 
@@ -87,10 +74,10 @@ router.post('/:username/click/:linkId', async (req, res) => {
 router.get('/admin/me', auth, async (req, res) => {
     try {
         const profile = await Profile.findById(req.user.id).select('-password');
-        if (!profile) return res.status(404).json({ message: 'Không tìm thấy profile' });
+        if (!profile) return res.status(404).json({ message: 'Khong tim thay profile' });
         res.json(profile);
     } catch (error) {
-        res.status(500).json({ message: 'Lỗi server' });
+        res.status(500).json({ message: 'Loi server' });
     }
 });
 
@@ -103,9 +90,9 @@ router.put('/admin/info', auth, async (req, res) => {
             { displayName, bio, metaTitle, metaDescription, updatedAt: new Date() },
             { new: true }
         ).select('-password');
-        res.json({ message: 'Cập nhật thành công!', profile });
+        res.json({ message: 'Cap nhat thanh cong!', profile });
     } catch (error) {
-        res.status(500).json({ message: 'Lỗi server' });
+        res.status(500).json({ message: 'Loi server' });
     }
 });
 
@@ -118,31 +105,32 @@ router.put('/admin/theme', auth, async (req, res) => {
             { theme, updatedAt: new Date() },
             { new: true }
         ).select('-password');
-        res.json({ message: 'Cập nhật theme thành công!', profile });
+        res.json({ message: 'Cap nhat theme thanh cong!', profile });
     } catch (error) {
-        res.status(500).json({ message: 'Lỗi server' });
+        res.status(500).json({ message: 'Loi server' });
     }
 });
 
-// POST /api/profile/admin/upload/avatar - Upload avatar
+// POST /api/profile/admin/upload/avatar - Upload avatar (base64 → MongoDB)
 router.post('/admin/upload/avatar', auth, upload.single('avatar'), async (req, res) => {
     try {
-        if (!req.file) return res.status(400).json({ message: 'Không có file được upload' });
-        const avatarUrl = `/uploads/${req.file.filename}`;
-        await Profile.findByIdAndUpdate(req.user.id, { avatar: avatarUrl });
-        res.json({ message: 'Upload avatar thành công!', url: avatarUrl });
+        if (!req.file) return res.status(400).json({ message: 'Khong co file duoc upload' });
+        const dataUrl = toDataUrl(req.file);
+        await Profile.findByIdAndUpdate(req.user.id, { avatar: dataUrl });
+        res.json({ message: 'Upload avatar thanh cong!', url: dataUrl });
     } catch (error) {
-        res.status(500).json({ message: 'Lỗi server' });
+        res.status(500).json({ message: 'Loi server' });
     }
 });
 
-// POST /api/profile/admin/upload/cover - Upload cover image
+// POST /api/profile/admin/upload/cover - Upload cover (base64 → MongoDB)
 router.post('/admin/upload/cover', auth, upload.single('cover'), async (req, res) => {
     try {
-        if (!req.file) return res.status(400).json({ message: 'Không có file được upload' });
-        const coverUrl = `/uploads/${req.file.filename}`;
-        await Profile.findByIdAndUpdate(req.user.id, { coverImage: coverUrl });
-        res.json({ message: 'Upload cover thành công!', url: coverUrl });
+        if (!req.file) return res.status(400).json({ message: 'Khong co file duoc upload' });
+        const dataUrl = toDataUrl(req.file);
+        await Profile.findByIdAndUpdate(req.user.id, { coverImage: dataUrl });
+        res.json({ message: 'Upload cover thanh cong!', url: dataUrl });
+
     } catch (error) {
         res.status(500).json({ message: 'Lỗi server' });
     }

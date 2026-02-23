@@ -889,11 +889,12 @@
 
             if (data.theme) applyTheme(data.theme);
 
-            // Avatar
+            // Avatar — hỗ trợ cả base64 data URL và đường dẫn /uploads cũ
             const avatarWrap = document.getElementById('avatarWrap');
             if (data.avatar) {
                 const img = document.createElement('img');
-                img.src = API_BASE + data.avatar;
+                // Nếu là data URL (base64) thì dùng trực tiếp, không cần API_BASE
+                img.src = data.avatar.startsWith('data:') ? data.avatar : API_BASE + data.avatar;
                 img.alt = data.displayName;
                 img.className = 'avatar';
                 avatarWrap.appendChild(img);

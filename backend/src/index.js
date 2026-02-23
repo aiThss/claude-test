@@ -15,9 +15,9 @@ app.use(express.urlencoded({ extended: true }));
 // Static: uploaded images
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Static: frontend files
+// Static: frontend files (index: false prevents auto-serving index.html for /)
 const publicDir = path.join(__dirname, '../public');
-app.use(express.static(publicDir));
+app.use(express.static(publicDir, { index: false }));
 
 // API Routes
 app.use('/api/auth', require('./routes/auth'));

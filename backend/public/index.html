@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -467,7 +467,7 @@
     <!-- Loading Screen -->
     <div class="loading-screen" id="loading">
         <div class="loader"></div>
-        <p class="loading-text">Đang tải...</p>
+        <p class="loading-text">Äang táº£i...</p>
     </div>
 
     <!-- Background -->
@@ -504,7 +504,7 @@
 
         <!-- Footer -->
         <div class="footer">
-            <p>Tạo trang của bạn với <a href="/admin/">BioLink</a> ✨</p>
+            <p>Táº¡o trang cá»§a báº¡n vá»›i <a href="/admin/">BioLink</a> âœ¨</p>
         </div>
     </div>
 
@@ -512,8 +512,8 @@
     <div class="container" id="not-found" style="display:none;">
         <div class="not-found animate-in">
             <h1>404</h1>
-            <p>Không tìm thấy trang này</p>
-            <a href="/" style="color: var(--primary);">Về trang chủ</a>
+            <p>KhÃ´ng tÃ¬m tháº¥y trang nÃ y</p>
+            <a href="/" style="color: var(--primary);">Vá» trang chá»§</a>
         </div>
     </div>
 
@@ -524,6 +524,7 @@
 
         // Get username from path or query
         function getUsername() {
+            if (window.__OWNER_USERNAME__) return window.__OWNER_USERNAME__;
             const path = window.location.pathname;
             const segments = path.split('/').filter(Boolean);
             if (segments[0] && segments[0] !== 'admin') return segments[0];
@@ -710,7 +711,7 @@
                 linksSection.innerHTML = `
         <div style="text-align:center; color: var(--subtext); padding: 40px 0;">
           <i class="fa-solid fa-link" style="font-size:2rem; margin-bottom:12px; opacity:0.3;"></i>
-          <p>Chưa có link nào được thêm</p>
+          <p>ChÆ°a cÃ³ link nÃ o Ä‘Æ°á»£c thÃªm</p>
         </div>`;
             }
         }

@@ -645,6 +645,14 @@
             return null;
         }
 
+        // ─── Normalize URL: luôn có https:// ───
+        function safeUrl(url) {
+            if (!url) return '#';
+            url = url.trim();
+            if (/^(https?:|tel:|mailto:)/.test(url)) return url;
+            return 'https://' + url;
+        }
+
         // ─── Locket SVG: chỉ có trái tim vàng đậm (div đã có nền vàng) ───
         const LOCKET_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
   <path d="M12 19.5 C11.6 19.2 3.5 13.5 3.5 8 C3.5 5.5 5.7 3.5 8 3.5 C9.8 3.5 11.2 4.5 12 6 C12.8 4.5 14.2 3.5 16 3.5 C18.3 3.5 20.5 5.5 20.5 8 C20.5 13.5 12.4 19.2 12 19.5Z" style="fill: #C07800"/>
@@ -828,7 +836,7 @@
                     const meta = socialMeta[social.platform] || socialMeta.other;
                     const color = meta.color;
                     const a = document.createElement('a');
-                    a.href = social.url;
+                    a.href = safeUrl(social.url);
                     a.target = '_blank';
                     a.rel = 'noopener noreferrer';
                     a.className = 'social-icon';
@@ -863,7 +871,8 @@
             if (data.links && data.links.length > 0) {
                 data.links.forEach((link, i) => {
                     const btn = document.createElement('a');
-                    btn.href = link.url;
+                    // href trực tiếp — browser tự mở link, không cần window.open
+                    btn.href = safeUrl(link.url);
                     btn.target = '_blank';
                     btn.rel = 'noopener noreferrer';
                     btn.className = `link-btn ${buttonStyle}`;
@@ -884,10 +893,9 @@
                     btn.appendChild(titleEl);
                     btn.appendChild(arrowEl);
 
-                    btn.addEventListener('click', (e) => {
-                        e.preventDefault();
+                    // Track click (không block navigation)
+                    btn.addEventListener('click', () => {
                         fetch(`${API_BASE}/api/profile/${data.username}/click/${link._id}`, { method: 'POST' }).catch(() => { });
-                        setTimeout(() => window.open(link.url, '_blank', 'noopener,noreferrer'), 100);
                     });
 
                     linksSection.appendChild(btn);

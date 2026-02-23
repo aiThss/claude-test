@@ -44,6 +44,11 @@ app.get('/admin/*', (req, res) => {
   res.sendFile(path.join(publicDir, 'admin', 'index.html'));
 });
 
+// Games page
+app.get('/games', (req, res) => {
+  res.sendFile(path.join(publicDir, 'games.html'));
+});
+
 // Root / và tất cả route còn lại → public profile page
 app.get('*', (req, res) => {
   res.sendFile(path.join(publicDir, 'index.html'));

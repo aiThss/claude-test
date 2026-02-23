@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>aiThsLink - Mini Games</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #0a0a1a;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden
+        }
+
+        /* BG */
+        .bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: radial-gradient(ellipse at top, #1a1040 0%, #0a0a1a 60%)
+        }
+
+        /* STARS BG */
+        .star-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none
+        }
+
+        .s4 {
+            position: absolute;
+            background: #fff;
+            clip-path: polygon(50% 0%, 52% 48%, 100% 50%, 52% 52%, 50% 100%, 48% 52%, 0% 50%, 48% 48%);
+            animation: twinkle4 var(--d, 3s) var(--dl, 0s) ease-in-out infinite
+        }
+
+        @keyframes twinkle4 {
+
+            0%,
+            100% {
+                opacity: .1;
+                transform: scale(.5) rotate(0deg)
+            }
+
+            50% {
+                opacity: .9;
+                transform: scale(1.3) rotate(45deg)
+            }
+        }
+
+        /* LAYOUT */
+        .page {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh
+        }
+
+        /* LOBBY */
+        #lobby {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px 48px
+        }
+
+        .back-btn {
+            align-self: flex-start;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, .08);
+            border: 1px solid rgba(255, 255, 255, .15);
+            border-radius: 100px;
+            color: #a0a0c0;
+            text-decoration: none;
+            font-size: .85rem;
+            margin-bottom: 24px;
+            transition: all .25s
+        }
+
+        .back-btn:hover {
+            background: rgba(108, 99, 255, .2);
+            color: #fff
+        }
+
+        .lobby-title {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6c63ff, #ff6584);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            text-align: center
+        }
+
+        .lobby-sub {
+            color: #a0a0c0;
+            margin-bottom: 32px;
+            font-size: .9rem
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            width: 100%;
+            max-width: 440px
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-radius: 20px;
+            padding: 20px 16px;
+            cursor: pointer;
+            transition: all .3s cubic-bezier(.34, 1.56, .64, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity .3s;
+            background: var(--gcolor)
+        }
+
+        .game-card:hover::before,
+        .game-card:active::before {
+            opacity: .12
+        }
+
+        .game-card:active {
+            transform: scale(.95)
+        }
+
+        .game-emoji {
+            font-size: 2.8rem;
+            line-height: 1;
+            margin-bottom: 4px
+        }
+
+        .game-name {
+            font-size: 1rem;
+            font-weight: 700
+        }
+
+        .game-desc {
+            font-size: .75rem;
+            color: #a0a0c0;
+            line-height: 1.4
+        }
+
+        .game-hs {
+            font-size: .72rem;
+            color: #6c63ff;
+            font-weight: 600;
+            margin-top: 4px
+        }
+
+        .card-1 {
+            --gcolor: linear-gradient(135deg, #6c63ff, #a855f7)
+        }
+
+        .card-2 {
+            --gcolor: linear-gradient(135deg, #f72585, #ff6584)
+        }
+
+        .card-3 {
+            --gcolor: linear-gradient(135deg, #00b4d8, #4ade80)
+        }
+
+        .card-4 {
+            --gcolor: linear-gradient(135deg, #fb923c, #fbbf24)
+        }
+
+        /* GAME SCREEN */
+        .game-screen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            flex-direction: column
+        }
+
+        .game-screen.active {
+            display: flex
+        }
+
+        .game-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, .4);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+            flex-shrink: 0
+        }
+
+        .game-header h2 {
+            font-size: 1.1rem;
+            font-weight: 700
+        }
+
+        .game-exit {
+            background: rgba(255, 255, 255, .1);
+            border: none;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 100px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: .85rem;
+            transition: background .2s
+        }
+
+        .game-exit:hover {
+            background: rgba(255, 100, 100, .3)
+        }
+
+        .score-bar {
+            display: flex;
+            gap: 20px;
+            align-items: center
+        }
+
+        .score-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1
+        }
+
+        .score-item span:first-child {
+            font-size: .62rem;
+            color: #a0a0c0;
+            text-transform: uppercase;
+            letter-spacing: .05em
+        }
+
+        .score-item span:last-child {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff
+        }
+
+        .game-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .game-body-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0
+        }
+
+        .game-content {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            flex-direction: column;
+            align-items: center
+        }
+
+        /* RESULT Overlay */
+        .result-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 50;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10, 10, 26, .9);
+            backdrop-filter: blur(8px);
+            text-align: center;
+            padding: 32px
+        }
+
+        .result-overlay.show {
+            display: flex
+        }
+
+        .result-emoji {
+            font-size: 4rem;
+            margin-bottom: 12px
+        }
+
+        .result-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 8px
+        }
+
+        .result-score {
+            font-size: 1.1rem;
+            color: #a0a0c0;
+            margin-bottom: 24px
+        }
+
+        .btn-play-again {
+            padding: 14px 40px;
+            background: linear-gradient(135deg, #6c63ff, #a855f7);
+            border: none;
+            color: #fff;
+            border-radius: 100px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .25s;
+            box-shadow: 0 4px 20px rgba(108, 99, 255, .4)
+        }
+
+        .btn-play-again:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(108, 99, 255, .5)
+        }
+
+        /* ============ GAME 1: DAP SAO ============ */
+        #g1-arena {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 3/4;
+            max-height: 60vh;
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 20px;
+            overflow: hidden;
+            background: radial-gradient(ellipse, #1a1040, #0a0a1a)
+        }
+
+        #g1-start {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px
+        }
+
+        #g1-start p {
+            color: #a0a0c0;
+            font-size: .9rem;
+            text-align: center
+        }
+
+        .start-btn {
+            padding: 14px 48px;
+            background: linear-gradient(135deg, #6c63ff, #a855f7);
+            border: none;
+            color: #fff;
+            border-radius: 100px;
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(108, 99, 255, .4);
+            transition: all .25s
+        }
+
+        .start-btn:active {
+            transform: scale(.95)
+        }
+
+        .tap-target {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform .15s;
+            font-size: 28px;
+            animation: popIn .2s ease
+        }
+
+        .tap-target.star-type {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #6c63ff, #ff6584);
+            clip-path: polygon(50% 0%, 52% 47%, 100% 50%, 52% 53%, 50% 100%, 48% 53%, 0% 50%, 48% 47%);
+            box-shadow: 0 0 16px rgba(108, 99, 255, .8)
+        }
+
+        .tap-target.bomb-type {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-radius: 50%;
+            box-shadow: 0 0 16px rgba(239, 68, 68, .6)
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0) rotate(-20deg)
+            }
+
+            to {
+                transform: scale(1) rotate(0deg)
+            }
+        }
+
+        .tap-target:active {
+            transform: scale(1.3) !important
+        }
+
+        .shrink-anim {
+            animation: shrinkOut .3s ease forwards
+        }
+
+        @keyframes shrinkOut {
+            to {
+                transform: scale(0);
+                opacity: 0
+            }
+        }
+
+        .combo-text {
+            position: absolute;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #ffd700;
+            pointer-events: none;
+            animation: floatUp .6s ease forwards;
+            z-index: 10
+        }
+
+        @keyframes floatUp {
+            from {
+                opacity: 1;
+                transform: translateY(0) scale(1)
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(-60px) scale(1.5)
+            }
+        }
+
+        #g1-timebar {
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, .1);
+            border-radius: 100px;
+            margin-bottom: 8px
+        }
+
+        #g1-timefill {
+            height: 100%;
+            border-radius: 100px;
+            background: linear-gradient(to right, #6c63ff, #ff6584);
+            transition: width .1s linear
+        }
+
+        /* ============ GAME 2: SIMON ============ */
+        .simon-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+            max-width: 320px
+        }
+
+        .simon-btn {
+            height: 130px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            transition: all .15s;
+            position: relative;
+            overflow: hidden
+        }
+
+        .simon-btn:active,
+        .simon-btn.lit {
+            filter: brightness(1.8);
+            transform: scale(.95)
+        }
+
+        .simon-r {
+            background: #ef4444;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, .3)
+        }
+
+        .simon-b {
+            background: #3b82f6;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, .3)
+        }
+
+        .simon-g {
+            background: #22c55e;
+            box-shadow: 0 4px 20px rgba(34, 197, 94, .3)
+        }
+
+        .simon-y {
+            background: #eab308;
+            box-shadow: 0 4px 20px rgba(234, 179, 8, .3)
+        }
+
+        .simon-status {
+            font-size: 1rem;
+            color: #a0a0c0;
+            margin-bottom: 20px;
+            text-align: center;
+            min-height: 1.5em
+        }
+
+        .simon-level {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #6c63ff
+        }
+
+        /* ============ GAME 3: MATH RUSH ============ */
+        .math-question {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 28px;
+            text-align: center;
+            background: linear-gradient(135deg, #00b4d8, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .math-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+            max-width: 340px
+        }
+
+        .math-opt {
+            padding: 20px;
+            background: rgba(255, 255, 255, .07);
+            border: 2px solid rgba(255, 255, 255, .1);
+            border-radius: 16px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: inherit
+        }
+
+        .math-opt:active {
+            transform: scale(.95)
+        }
+
+        .math-opt.correct {
+            background: rgba(34, 197, 94, .3);
+            border-color: #22c55e
+        }
+
+        .math-opt.wrong {
+            background: rgba(239, 68, 68, .3);
+            border-color: #ef4444
+        }
+
+        .math-lives {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+            font-size: 1.3rem
+        }
+
+        #g3-timebar {
+            width: 100%;
+            max-width: 340px;
+            height: 5px;
+            background: rgba(255, 255, 255, .1);
+            border-radius: 100px;
+            margin-bottom: 20px
+        }
+
+        #g3-timefill {
+            height: 100%;
+            border-radius: 100px;
+            background: linear-gradient(to right, #00b4d8, #4ade80);
+            transition: width .1s linear
+        }
+
+        /* ============ GAME 4: PHAN XA ============ */
+        #g4-screen {
+            width: 100%;
+            aspect-ratio: 1/1;
+            max-height: 55vh;
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background .15s;
+            position: relative;
+            overflow: hidden
+        }
+
+        .g4-waiting {
+            background: radial-gradient(ellipse, #1a1040, #0a0a1a);
+            border: 2px solid rgba(255, 255, 255, .1)
+        }
+
+        .g4-ready {
+            background: radial-gradient(ellipse, #ef4444 0%, #dc2626 100%);
+            border: 2px solid #ef4444
+        }
+
+        .g4-go {
+            background: radial-gradient(ellipse, #22c55e 0%, #16a34a 100%);
+            border: 2px solid #22c55e;
+            animation: scalePop .1s ease
+        }
+
+        @keyframes scalePop {
+
+            0%,
+            100% {
+                transform: scale(1)
+            }
+
+            50% {
+                transform: scale(1.03)
+            }
+        }
+
+        #g4-big-text {
+            font-size: 2.2rem;
+            font-weight: 800;
+            text-align: center;
+            line-height: 1.2
+        }
+
+        #g4-sub {
+            font-size: .9rem;
+            color: rgba(255, 255, 255, .7);
+            margin-top: 8px;
+            text-align: center
+        }
+
+        .g4-rounds {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-size: 1.5rem
+        }
+
+        .g4-result-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 280px
+        }
+
+        .g4-rt {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, .06);
+            border-radius: 10px;
+            font-size: .9rem
+        }
+
+        .g4-rt .t {
+            color: #4ade80;
+            font-weight: 700
+        }
+
+        /* RESPONSIVE */
+        @media(max-width:360px) {
+            .simon-btn {
+                height: 110px
+            }
+
+            .math-opt {
+                padding: 15px;
+                font-size: 1.2rem
+            }
+        }
+
+        @media(max-height:700px) {
+            #g1-arena {
+                max-height: 50vh
+            }
+
+            #g4-screen {
+                max-height: 42vh
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg"></div>
+    <div class="star-bg" id="starBg"></div>
+
+    <!-- LOBBY -->
+    <div class="page" id="lobby">
+        <a href="javascript:history.back()" class="back-btn">← Quay lại</a>
+        <div class="lobby-title">🎮 Mini Games</div>
+        <p class="lobby-sub">Chọn game để bắt đầu chơi!</p>
+        <div class="games-grid">
+            <div class="game-card card-1" onclick="openGame(1)">
+                <div class="game-emoji">⭐</div>
+                <div class="game-name">Đập Sao</div>
+                <div class="game-desc">Bấm nhanh vào các ngôi sao trước khi chúng biến mất!</div>
+                <div class="game-hs" id="hs-1">Kỷ lục: —</div>
+            </div>
+            <div class="game-card card-2" onclick="openGame(2)">
+                <div class="game-emoji">🎨</div>
+                <div class="game-name">Nhớ Màu</div>
+                <div class="game-desc">Ghi nhớ và lặp lại chuỗi màu ngày càng phức tạp hơn!</div>
+                <div class="game-hs" id="hs-2">Kỷ lục: —</div>
+            </div>
+            <div class="game-card card-3" onclick="openGame(3)">
+                <div class="game-emoji">🧮</div>
+                <div class="game-name">Toán Nhanh</div>
+                <div class="game-desc">Giải toán thật nhanh! 3 mạng, 30 giây mỗi câu!</div>
+                <div class="game-hs" id="hs-3">Kỷ lục: —</div>
+            </div>
+            <div class="game-card card-4" onclick="openGame(4)">
+                <div class="game-emoji">⚡</div>
+                <div class="game-name">Phản Xạ</div>
+                <div class="game-desc">Bấm ngay khi màn hình chuyển xanh! Ai nhanh nhất?</div>
+                <div class="game-hs" id="hs-4">Kỷ lục: —</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======== GAME 1: ĐẬP SAO ======== -->
+    <div class="game-screen" id="game1">
+        <div class="game-header">
+            <h2>⭐ Đập Sao</h2>
+            <div class="score-bar">
+                <div class="score-item"><span>Điểm</span><span id="g1-score">0</span></div>
+                <div class="score-item"><span>Thời gian</span><span id="g1-time">30</span></div>
+            </div>
+            <button class="game-exit" onclick="closeGame(1)">✕ Thoát</button>
+        </div>
+        <div class="game-body" style="background:radial-gradient(ellipse at top,#1a1040,#0a0a1a)">
+            <div class="game-content">
+                <div id="g1-timebar">
+                    <div id="g1-timefill" style="width:100%"></div>
+                </div>
+                <div id="g1-arena">
+                    <div id="g1-start"
+                        style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
+                        <div style="font-size:3rem">⭐</div>
+                        <p style="color:#a0a0c0;text-align:center;padding:0 20px">Bấm vào sao ✦ để ghi điểm<br>Tránh tải
+                            bom 💣 bị trừ điểm!</p>
+                        <button class="start-btn" onclick="startGame1()">Bắt đầu!</button>
+                    </div>
+                </div>
+            </div>
+            <div class="result-overlay" id="g1-result">
+                <div class="result-emoji">🏆</div>
+                <div class="result-title">Kết quả!</div>
+                <div class="result-score" id="g1-result-text"></div>
+                <button class="btn-play-again" onclick="startGame1()">Chơi lại</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======== GAME 2: SIMON ======== -->
+    <div class="game-screen" id="game2">
+        <div class="game-header">
+            <h2>🎨 Nhớ Màu</h2>
+            <div class="score-bar">
+                <div class="score-item"><span>Level</span><span id="g2-level">1</span></div>
+            </div>
+            <button class="game-exit" onclick="closeGame(2)">✕ Thoát</button>
+        </div>
+        <div class="game-body" style="background:radial-gradient(ellipse at top,#1a0a14,#0a0a1a)">
+            <div class="game-content">
+                <div class="simon-level" id="g2-lv-display">Level 1</div>
+                <p class="simon-status" id="g2-status">Nhấn Bắt đầu để chơi</p>
+                <div class="simon-grid">
+                    <button class="simon-btn simon-r" onclick="simonPress(0)"></button>
+                    <button class="simon-btn simon-b" onclick="simonPress(1)"></button>
+                    <button class="simon-btn simon-g" onclick="simonPress(2)"></button>
+                    <button class="simon-btn simon-y" onclick="simonPress(3)"></button>
+                </div>
+                <button class="start-btn" id="g2-start-btn" onclick="startGame2()" style="margin-top:20px">Bắt
+                    đầu!</button>
+            </div>
+            <div class="result-overlay" id="g2-result">
+                <div class="result-emoji">🎨</div>
+                <div class="result-title">Game Over!</div>
+                <div class="result-score" id="g2-result-text"></div>
+                <button class="btn-play-again" style="background:linear-gradient(135deg,#f72585,#ff6584)"
+                    onclick="startGame2()">Chơi lại</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======== GAME 3: TOÁN NHANH ======== -->
+    <div class="game-screen" id="game3">
+        <div class="game-header">
+            <h2>🧮 Toán Nhanh</h2>
+            <div class="score-bar">
+                <div class="score-item"><span>Điểm</span><span id="g3-score">0</span></div>
+                <div class="score-item"><span>Mạng</span><span id="g3-lives">❤️❤️❤️</span></div>
+            </div>
+            <button class="game-exit" onclick="closeGame(3)">✕ Thoát</button>
+        </div>
+        <div class="game-body" style="background:radial-gradient(ellipse at top,#071a0f,#0a0a1a)">
+            <div class="game-content">
+                <div id="g3-timebar">
+                    <div id="g3-timefill" style="width:100%"></div>
+                </div>
+                <div id="g3-question-area"
+                    style="width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center">
+                    <div class="math-question" id="g3-q">?</div>
+                    <div class="math-options" id="g3-opts"></div>
+                </div>
+                <div id="g3-start-view"
+                    style="display:flex;flex-direction:column;align-items:center;gap:12px;position:absolute">
+                    <div style="font-size:3rem">🧮</div>
+                    <p style="color:#a0a0c0;text-align:center">Chọn đáp án đúng thật nhanh!<br>Sai 3 lần = thua!</p>
+                    <button class="start-btn" style="background:linear-gradient(135deg,#00b4d8,#4ade80)"
+                        onclick="startGame3()">Bắt đầu!</button>
+                </div>
+            </div>
+            <div class="result-overlay" id="g3-result">
+                <div class="result-emoji">🧮</div>
+                <div class="result-title">Hoàn thành!</div>
+                <div class="result-score" id="g3-result-text"></div>
+                <button class="btn-play-again" style="background:linear-gradient(135deg,#00b4d8,#4ade80)"
+                    onclick="startGame3()">Chơi lại</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======== GAME 4: PHẢN XẠ ======== -->
+    <div class="game-screen" id="game4">
+        <div class="game-header">
+            <h2>⚡ Phản Xạ</h2>
+            <div class="score-bar">
+                <div class="score-item"><span>Lượt</span><span id="g4-round-disp">0/5</span></div>
+            </div>
+            <button class="game-exit" onclick="closeGame(4)">✕ Thoát</button>
+        </div>
+        <div class="game-body" style="background:radial-gradient(ellipse at top,#1a0f05,#0a0a1a)">
+            <div class="game-content">
+                <div class="g4-rounds" id="g4-dots"></div>
+                <div id="g4-screen" class="g4-waiting" onclick="g4Tap()">
+                    <div id="g4-big-text">Nhấn Bắt đầu</div>
+                    <div id="g4-sub">Thử thách phản xạ của bạn!</div>
+                </div>
+                <div style="margin-top:16px">
+                    <button class="start-btn" id="g4-start-btn"
+                        style="background:linear-gradient(135deg,#fb923c,#fbbf24)" onclick="startGame4()">Bắt
+                        đầu!</button>
+                </div>
+                <div class="g4-result-list" id="g4-list" style="display:none"></div>
+            </div>
+            <div class="result-overlay" id="g4-result">
+                <div class="result-emoji">⚡</div>
+                <div class="result-title">Kết quả!</div>
+                <div class="result-score" id="g4-result-text"></div>
+                <button class="btn-play-again" style="background:linear-gradient(135deg,#fb923c,#fbbf24)"
+                    onclick="startGame4()">Chơi lại</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── Stars background ───
+        ; (function () {
+            const c = document.getElementById('starBg');
+            for (let i = 0; i < 40; i++) {
+                const s = document.createElement('div'); s.className = 's4';
+                const sz = 3 + Math.random() * 8;
+                s.style.cssText = `left:${Math.random() * 100}vw;top:${Math.random() * 100}vh;width:${sz}px;height:${sz}px;--d:${2 + Math.random() * 5}s;--dl:${Math.random() * 6}s;opacity:.3`;
+                c.appendChild(s);
+            }
+        })();
+
+        // ─── High scores ───
+        const HS_KEY = 'aiths_game_hs';
+        function getHS() { try { return JSON.parse(localStorage.getItem(HS_KEY) || '{}') } catch { return {} } }
+        function setHS(id, val) { const h = getHS(); if (!h[id] || val > h[id]) { h[id] = val; localStorage.setItem(HS_KEY, JSON.stringify(h)); return true } return false }
+        function renderHS() { const h = getHS();[1, 2, 3, 4].forEach(i => { const el = document.getElementById(`hs-${i}`); if (el) el.textContent = 'Kỷ lục: ' + (h[i] ?? (i === 4 ? h[i] + 'ms' : '—')) + (h[i] && i === 4 ? ' ms' : h[i] ? ' điểm' : '—') }) }
+        renderHS();
+
+        function openGame(n) {
+            document.getElementById('lobby').style.display = 'none';
+            document.getElementById(`game${n}`).classList.add('active');
+            if (n === 4) initG4UI();
+        }
+        function closeGame(n) {
+            document.getElementById(`game${n}`).classList.remove('active');
+            document.getElementById('lobby').style.display = 'flex';
+            cleanupGame(n); renderHS();
+        }
+
+        // ─── CLEANUP ───
+        let g1Int, g3Int, g4to;
+        function cleanupGame(n) {
+            clearInterval(g1Int); clearInterval(g3Int); clearTimeout(g4to);
+            g1Running = false; g3Running = false; g4State = 'idle';
+        }
+
+        // ───────────── GAME 1: ĐẬP SAO ─────────────
+        let g1Score = 0, g1Time = 30, g1Running = false, g1Targets = [], g1Combo = 0;
+        const G1_DURATION = 30;
+
+        function startGame1() {
+            document.getElementById('g1-result').classList.remove('show');
+            document.getElementById('g1-start').style.display = 'none';
+            g1Score = 0; g1Time = G1_DURATION; g1Combo = 0; g1Running = true; g1Targets = [];
+            const arena = document.getElementById('g1-arena');
+            arena.querySelectorAll('.tap-target').forEach(e => e.remove());
+            document.getElementById('g1-score').textContent = '0';
+            document.getElementById('g1-time').textContent = G1_DURATION;
+            document.getElementById('g1-timefill').style.width = '100%';
+            clearInterval(g1Int);
+            g1spawner();
+            g1Int = setInterval(() => {
+                g1Time--;
+                document.getElementById('g1-time').textContent = g1Time;
+                document.getElementById('g1-timefill').style.width = (g1Time / G1_DURATION * 100) + '%';
+                if (g1Time <= 0) endGame1();
+            }, 1000);
+        }
+
+        function g1spawner() {
+            if (!g1Running) return;
+            spawnTarget();
+            const delay = Math.max(600, 1500 - Math.floor((G1_DURATION - g1Time) / 3) * 100);
+            setTimeout(g1spawner, delay);
+        }
+
+        function spawnTarget() {
+            if (!g1Running) return;
+            const arena = document.getElementById('g1-arena');
+            const isBomb = Math.random() < 0.15;
+            const el = document.createElement('div');
+            el.className = `tap-target ${isBomb ? 'bomb-type' : 'star-type'}`;
+            el.textContent = isBomb ? '💣' : '';
+            const aw = arena.offsetWidth, ah = arena.offsetHeight;
+            const size = isBomb ? 48 : 52;
+            el.style.left = (10 + Math.random() * (aw - size - 20)) + 'px';
+            el.style.top = (10 + Math.random() * (ah - size - 20)) + 'px';
+            el.addEventListener('click', () => hitTarget(el, isBomb));
+            el.addEventListener('touchstart', (e) => { e.preventDefault(); hitTarget(el, isBomb) }, { passive: false });
+            arena.appendChild(el);
+            const lifetime = 1500 + Math.random() * 1000;
+            const tid = setTimeout(() => { if (el.parentNode) el.remove(); g1Combo = 0 }, lifetime);
+            el._tid = tid;
+        }
+
+        function hitTarget(el, isBomb) {
+            if (!el.parentNode) return;
+            clearTimeout(el._tid);
+            const arena = document.getElementById('g1-arena');
+            const rect = el.getBoundingClientRect();
+            const arRect = arena.getBoundingClientRect();
+            el.remove();
+            if (isBomb) {
+                g1Score = Math.max(0, g1Score - 5); g1Combo = 0;
+                showCombo(arena, rect.left - arRect.left + 24, rect.top - arRect.top, '-5', '#ef4444');
+            } else {
+                g1Combo++;
+                const pts = g1Combo >= 3 ? 3 : g1Combo >= 2 ? 2 : 1;
+                g1Score += pts;
+                showCombo(arena, rect.left - arRect.left + 26, rect.top - arRect.top, `+${pts}${g1Combo >= 3 ? ' COMBO!' : ''}`, g1Combo >= 3 ? '#ffd700' : '#6c63ff');
+            }
+            document.getElementById('g1-score').textContent = g1Score;
+        }
+
+        function showCombo(parent, x, y, text, color) {
+            const c = document.createElement('div');
+            c.className = 'combo-text'; c.textContent = text;
+            c.style.cssText = `left:${x}px;top:${y}px;color:${color};transform:translateX(-50%)`;
+            parent.appendChild(c); setTimeout(() => c.remove(), 700);
+        }
+
+        function endGame1() {
+            g1Running = false; clearInterval(g1Int);
+            document.getElementById('g1-arena').querySelectorAll('.tap-target').forEach(e => e.remove());
+            const hs = setHS(1, g1Score);
+            document.getElementById('g1-result-text').textContent = `Điểm: ${g1Score}${hs ? ' 🏆 Kỷ lục mới!' : ''}`;
+            document.getElementById('g1-result').classList.add('show');
+        }
+
+        // ───────────── GAME 2: SIMON ─────────────
+        let g2seq = [], g2step = 0, g2waitInput = false, g2level = 1, g2showing = false;
+        const SIMON_COLORS = ['simon-r', 'simon-b', 'simon-g', 'simon-y'];
+
+        function startGame2() {
+            document.getElementById('g2-result').classList.remove('show');
+            document.getElementById('g2-start-btn').style.display = 'none';
+            g2seq = []; g2step = 0; g2level = 1;
+            updateSimonLevel();
+            setTimeout(() => addSimonStep(), 400);
+        }
+
+        function addSimonStep() {
+            g2seq.push(Math.floor(Math.random() * 4));
+            g2step = 0; g2waitInput = false;
+            updateSimonLevel();
+            showSimonSequence();
+        }
+
+        function updateSimonLevel() {
+            document.getElementById('g2-level').textContent = g2level;
+            document.getElementById('g2-lv-display').textContent = `Level ${g2level}`;
+        }
+
+        function showSimonSequence() {
+            g2showing = true;
+            document.getElementById('g2-status').textContent = 'Ghi nhớ chuỗi màu...';
+            const btns = document.querySelectorAll('.simon-btn');
+            btns.forEach(b => b.style.pointerEvents = 'none');
+            let i = 0;
+            function playNext() {
+                if (i >= g2seq.length) { g2showing = false; setTimeout(() => { document.getElementById('g2-status').textContent = 'Lặp lại chuỗi màu!'; btns.forEach(b => b.style.pointerEvents = ''); g2waitInput = true; }, 300); return }
+                const btn = document.querySelectorAll('.simon-btn')[g2seq[i]];
+                btn.classList.add('lit'); setTimeout(() => { btn.classList.remove('lit'); i++; setTimeout(playNext, 300) }, 400);
+            }
+            setTimeout(playNext, 500);
+        }
+
+        function simonPress(idx) {
+            if (!g2waitInput || g2showing) return;
+            const btn = document.querySelectorAll('.simon-btn')[idx];
+            btn.classList.add('lit'); setTimeout(() => btn.classList.remove('lit'), 200);
+            if (idx === g2seq[g2step]) {
+                g2step++;
+                if (g2step >= g2seq.length) {
+                    g2waitInput = false; g2level++;
+                    document.getElementById('g2-status').textContent = '🎉 Đúng rồi!';
+                    setTimeout(() => addSimonStep(), 800);
+                }
+            } else {
+                g2waitInput = false;
+                const hs = setHS(2, g2level - 1);
+                document.getElementById('g2-result-text').textContent = `Đạt Level: ${g2level - 1}${hs ? ' 🏆 Kỷ lục mới!' : ''}`;
+                document.getElementById('g2-result').classList.add('show');
+                document.getElementById('g2-start-btn').style.display = '';
+            }
+        }
+
+        // ───────────── GAME 3: TOÁN NHANH ─────────────
+        let g3Score = 0, g3Lives = 3, g3Running = false, g3TimeLeft = 15, g3CorrectAns = 0;
+        const G3_QLIMIT = 999;
+
+        function startGame3() {
+            document.getElementById('g3-result').classList.remove('show');
+            document.getElementById('g3-start-view').style.display = 'none';
+            g3Score = 0; g3Lives = 3; g3Running = true;
+            document.getElementById('g3-score').textContent = '0';
+            document.getElementById('g3-lives').textContent = '❤️❤️❤️';
+            nextMath();
+        }
+
+        function nextMath() {
+            if (!g3Running) return;
+            clearInterval(g3Int);
+            g3TimeLeft = 15;
+            document.getElementById('g3-timefill').style.width = '100%';
+            const ops = ['+', '-', '×'];
+            const op = ops[Math.floor(Math.random() * ops.length)];
+            let a, b, ans;
+            if (op === '+') { a = Math.floor(Math.random() * 50) + 1; b = Math.floor(Math.random() * 50) + 1; ans = a + b }
+            else if (op === '-') { a = Math.floor(Math.random() * 80) + 20; b = Math.floor(Math.random() * a) + 1; ans = a - b }
+            else { a = Math.floor(Math.random() * 11) + 2; b = Math.floor(Math.random() * 11) + 2; ans = a * b }
+            g3CorrectAns = ans;
+            document.getElementById('g3-q').textContent = `${a} ${op} ${b} = ?`;
+            const wrong = new Set(); while (wrong.size < 3) { const off = Math.floor(Math.random() * 20) + 1; wrong.add(ans + (Math.random() < 0.5 ? off : -off)) }
+            const opts = [ans, ...wrong].sort(() => Math.random() - .5);
+            const grid = document.getElementById('g3-opts');
+            grid.innerHTML = opts.map(o => `<button class="math-opt" onclick="checkMath(this,${o})">${o}</button>`).join('');
+            g3Int = setInterval(() => {
+                g3TimeLeft -= 0.1;
+                document.getElementById('g3-timefill').style.width = (g3TimeLeft / 15 * 100) + '%';
+                if (g3TimeLeft <= 0) { clearInterval(g3Int); g3Miss(); }
+            }, 100);
+        }
+
+        function checkMath(btn, val) {
+            if (!g3Running) return;
+            clearInterval(g3Int);
+            document.querySelectorAll('.math-opt').forEach(b => b.style.pointerEvents = 'none');
+            if (val === g3CorrectAns) {
+                btn.classList.add('correct'); g3Score++;
+                document.getElementById('g3-score').textContent = g3Score;
+                setTimeout(nextMath, 400);
+            } else {
+                btn.classList.add('wrong');
+                document.querySelectorAll('.math-opt').forEach(b => { if (parseInt(b.textContent) === g3CorrectAns) b.classList.add('correct') });
+                g3Miss();
+            }
+        }
+
+        function g3Miss() {
+            g3Lives--;
+            const livesEl = document.getElementById('g3-lives');
+            livesEl.textContent = '❤️'.repeat(Math.max(0, g3Lives));
+            if (g3Lives <= 0) { endGame3() }
+            else { setTimeout(nextMath, 500) }
+        }
+
+        function endGame3() {
+            g3Running = false; clearInterval(g3Int);
+            const hs = setHS(3, g3Score);
+            document.getElementById('g3-result-text').textContent = `Điểm: ${g3Score} câu đúng${hs ? ' 🏆 Kỷ lục mới!' : ''}`;
+            document.getElementById('g3-result').classList.add('show');
+            document.getElementById('g3-start-view').style.display = 'flex';
+        }
+
+        // ───────────── GAME 4: PHẢN XẠ ─────────────
+        let g4State = 'idle', g4Round = 0, g4Times = [], g4StartMs = 0;
+        const G4_ROUNDS = 5;
+
+        function initG4UI() {
+            g4State = 'idle'; g4Round = 0; g4Times = [];
+            document.getElementById('g4-dots').innerHTML = '○'.repeat(G4_ROUNDS).split('').map(() => '<span>○</span>').join('');
+            document.getElementById('g4-round-disp').textContent = `0/${G4_ROUNDS}`;
+            document.getElementById('g4-list').style.display = 'none';
+            document.getElementById('g4-list').innerHTML = '';
+            document.getElementById('g4-result').classList.remove('show');
+            const sc = document.getElementById('g4-screen');
+            sc.className = 'g4-waiting';
+            document.getElementById('g4-big-text').textContent = 'Nhấn Bắt đầu';
+            document.getElementById('g4-sub').textContent = 'Thử thách phản xạ của bạn!';
+            document.getElementById('g4-start-btn').style.display = '';
+        }
+
+        function startGame4() {
+            document.getElementById('g4-result').classList.remove('show');
+            document.getElementById('g4-start-btn').style.display = 'none';
+            g4State = 'idle'; g4Round = 0; g4Times = [];
+            document.getElementById('g4-dots').querySelectorAll('span').forEach(s => s.textContent = '○');
+            document.getElementById('g4-list').style.display = 'none';
+            document.getElementById('g4-list').innerHTML = '';
+            g4NextRound();
+        }
+
+        function g4NextRound() {
+            const sc = document.getElementById('g4-screen');
+            sc.className = 'g4-ready';
+            document.getElementById('g4-big-text').textContent = 'Đừng chạm!';
+            document.getElementById('g4-sub').textContent = 'Chờ màn hình chuyển xanh...';
+            g4State = 'waiting';
+            const delay = 1200 + Math.random() * 3500;
+            g4to = setTimeout(() => {
+                if (g4State !== 'waiting') return;
+                g4State = 'go'; g4StartMs = Date.now();
+                sc.className = 'g4-go';
+                document.getElementById('g4-big-text').textContent = 'CHẠM NGAY!';
+                document.getElementById('g4-sub').textContent = '';
+            }, delay);
+        }
+
+        function g4Tap() {
+            if (g4State === 'idle') return;
+            if (g4State === 'waiting') {
+                clearTimeout(g4to); g4State = 'idle';
+                const sc = document.getElementById('g4-screen');
+                sc.className = 'g4-waiting';
+                document.getElementById('g4-big-text').textContent = '⚠️ Bấm sớm quá!';
+                document.getElementById('g4-sub').textContent = 'Nhấn lại để thử lại lượt này';
+                setTimeout(g4NextRound, 1000); return;
+            }
+            if (g4State === 'go') {
+                const ms = Date.now() - g4StartMs;
+                g4Times.push(ms); g4Round++;
+                const dots = document.getElementById('g4-dots').querySelectorAll('span');
+                if (dots[g4Round - 1]) dots[g4Round - 1].textContent = '●';
+                document.getElementById('g4-round-disp').textContent = `${g4Round}/${G4_ROUNDS}`;
+                const list = document.getElementById('g4-list');
+                list.style.display = 'flex';
+                const row = document.createElement('div'); row.className = 'g4-rt';
+                row.innerHTML = `<span>Lượt ${g4Round}</span><span class="t">${ms} ms</span>`;
+                list.appendChild(row);
+                if (g4Round >= G4_ROUNDS) { endGame4() }
+                else { g4State = 'waiting'; g4NextRound(); }
+            }
+        }
+
+        function endGame4() {
+            g4State = 'done';
+            const avg = Math.round(g4Times.reduce((a, b) => a + b, 0) / g4Times.length);
+            const best = Math.min(...g4Times);
+            const hs = setHS(4, 99999 - avg);// higher score = faster
+            document.getElementById('g4-result-text').innerHTML =
+                `TB: <strong>${avg} ms</strong><br>Nhanh nhất: <strong>${best} ms</strong>${hs ? '<br>🏆 Kỷ lục mới!' : ''}`;
+            document.getElementById('g4-result').classList.add('show');
+            document.getElementById('g4-start-btn').style.display = '';
+        }
+    </script>
+</body>
+
+</html>

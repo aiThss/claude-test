@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BioLink Admin - Đăng nhập</title>
+    <title>aiThsLink Admin - Đăng nhập</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -243,7 +243,7 @@
     <div class="login-card">
         <div class="logo">
             <div class="logo-icon"><i class="fa-solid fa-link"></i></div>
-            <h1>BioLink</h1>
+            <h1>aiThsLink</h1>
             <p>Quản lý trang bio của bạn</p>
         </div>
 
@@ -298,7 +298,7 @@
         const API = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
 
         // Redirect if already logged in
-        if (localStorage.getItem('biolink_token')) {
+        if (localStorage.getItem('aiThsLink_token')) {
             window.location.href = '/admin/dashboard.html';
         }
 
@@ -330,8 +330,8 @@
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.message);
-                localStorage.setItem('biolink_token', data.token);
-                localStorage.setItem('biolink_user', JSON.stringify(data.user));
+                localStorage.setItem('aiThsLink_token', data.token);
+                localStorage.setItem('aiThsLink_user', JSON.stringify(data.user));
                 window.location.href = '/admin/dashboard.html';
             } catch (err) {
                 showAlert(err.message || 'Đăng nhập thất bại', 'error');
@@ -354,8 +354,8 @@
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.message);
-                localStorage.setItem('biolink_token', data.token);
-                localStorage.setItem('biolink_user', JSON.stringify(data.user));
+                localStorage.setItem('aiThsLink_token', data.token);
+                localStorage.setItem('aiThsLink_user', JSON.stringify(data.user));
                 window.location.href = '/admin/dashboard.html';
             } catch (err) {
                 showAlert(err.message || 'Tạo tài khoản thất bại', 'error');

@@ -4,8 +4,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title id="page-title">BioLink</title>
+    <title id="page-title">aiThsLink</title>
     <meta id="meta-desc" name="description" content="My Bio Link Page" />
+    <!-- Favicon: aiThs SVG -->
+    <link rel="icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d7ec2'/%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%231a5fa8'/%3E%3Cstop offset='1' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Arial,sans-serif' font-weight='900' font-size='26' fill='white' letter-spacing='-1'%3EaiThs%3C/text%3E%3C/svg%3E"
+        type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -64,7 +68,7 @@
             }
         }
 
-        /* ===== STAR LAYER ===== */
+        /* ===== STAR LAYER: 4-pointed sharp stars ===== */
         .star-layer {
             position: fixed;
             inset: 0;
@@ -73,12 +77,100 @@
             overflow: hidden;
         }
 
-        /* Twinkling static stars */
-        .star-static {
+        /* Sharp 4-pointed star via clip-path — "sao 4 canh nhon hat" */
+        .star4 {
             position: absolute;
             background: #fff;
+            clip-path: polygon(50% 0%, 52% 47%, 100% 50%, 52% 53%, 50% 100%, 48% 53%, 0% 50%, 48% 47%);
+            animation: star4Anim var(--dur, 3s) var(--delay, 0s) ease-in-out infinite;
+        }
+
+        @keyframes star4Anim {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) rotate(0deg);
+            }
+
+            30% {
+                opacity: 0.9;
+                transform: scale(1) rotate(20deg);
+            }
+
+            60% {
+                opacity: 0.7;
+                transform: scale(1.2) rotate(45deg);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(0.2) rotate(90deg);
+            }
+        }
+
+        /* Shooting stars */
+        .shooting-star {
+            position: absolute;
+            width: var(--w, 2px);
+            height: var(--w, 2px);
+            background: radial-gradient(circle, #fff 0%, var(--primary) 40%, transparent 70%);
             border-radius: 50%;
-            animation: twinkle var(--dur, 3s) var(--delay, 0s) ease-in-out infinite alternate;
+            animation: fallingStar var(--dur, 6s) var(--delay, 0s) linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes fallingStar {
+            0% {
+                opacity: 0;
+                transform: translate(0, 0) rotate(215deg);
+            }
+
+            5% {
+                opacity: 1;
+            }
+
+            85% {
+                opacity: 0.8;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(calc(var(--dx, 300px)), calc(var(--dy, 300px))) rotate(215deg);
+            }
+        }
+
+        /* Glitter micro-dots */
+        .glitter {
+            position: absolute;
+            border-radius: 50%;
+            animation: glitterFloat var(--dur, 8s) var(--delay, 0s) ease-in-out infinite;
+            opacity: 0;
+        }
+
+        @keyframes glitterFloat {
+            0% {
+                opacity: 0;
+                transform: translateY(0) translateX(0) scale(0);
+            }
+
+            15% {
+                opacity: 0.9;
+                transform: translateY(-20px) translateX(var(--dx2, 10px)) scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: translateY(-60px) translateX(var(--dx3, -15px)) scale(0.7);
+            }
+
+            85% {
+                opacity: 0.2;
+                transform: translateY(-100px) translateX(var(--dx2, 10px)) scale(0.4);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-130px) translateX(0) scale(0);
+            }
         }
 
         @keyframes twinkle {
@@ -686,86 +778,73 @@
         }
 
         // ─── STAR EFFECTS ───
+        // ─ 4-pointed star colors
+        const STAR_COLORS = ['#ffffff', '#c9b8ff', '#a78bfa', '#ff9cb8', '#ffd700', '#80ffea', '#6c63ff'];
+
         function buildStarLayer() {
             const layer = document.getElementById('starLayer');
-            const W = window.innerWidth, H = window.innerHeight;
 
-            // 1. Static twinkling stars (80 dots)
-            for (let i = 0; i < 80; i++) {
+            // 1. MAIN: 4-pointed sharp stars (60) — "sao 4 canh nhon hoat"
+            for (let i = 0; i < 60; i++) {
                 const s = document.createElement('div');
-                s.className = 'star-static';
-                const sz = Math.random() * 2.5 + 0.5;
-                s.style.cssText = `
-                    left:${Math.random() * 100}vw; top:${Math.random() * 100}vh;
-                    width:${sz}px; height:${sz}px;
-                    --dur:${2 + Math.random() * 4}s;
-                    --delay:${Math.random() * 5}s;
-                    opacity:${0.1 + Math.random() * 0.3};
-                    box-shadow: 0 0 ${sz * 2}px ${Math.random() > 0.5 ? 'rgba(108,99,255,0.8)' : 'rgba(255,255,255,0.8)'};
-                `;
+                s.className = 'star4';
+                const sz = 4 + Math.random() * 14; // 4–18px
+                const col = STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)];
+                s.style.cssText = [
+                    `left:${Math.random() * 100}vw`,
+                    `top:${Math.random() * 100}vh`,
+                    `width:${sz}px`,
+                    `height:${sz}px`,
+                    `background:${col}`,
+                    `box-shadow:0 0 ${sz * 1.5}px ${sz * 0.5}px ${col}88`,
+                    `--dur:${2.5 + Math.random() * 4}s`,
+                    `--delay:${Math.random() * 8}s`,
+                ].join(';');
                 layer.appendChild(s);
             }
 
-            // 2. 4-pointed sparkles (30)
-            const sparkleColors = ['#fff', '#c9b8ff', '#ff9cb8', '#ffd700', '#80ffea'];
-            for (let i = 0; i < 30; i++) {
-                const s = document.createElement('div');
-                s.className = 'sparkle';
-                const sz = 4 + Math.random() * 10;
-                const col = sparkleColors[Math.floor(Math.random() * sparkleColors.length)];
-                s.style.cssText = `
-                    left:${Math.random() * 100}vw; top:${Math.random() * 100}vh;
-                    --sz:${sz}px;
-                    --dur:${3 + Math.random() * 5}s;
-                    --delay:${Math.random() * 8}s;
-                    color:${col};
-                `;
-                s.style.setProperty('--sparkle-color', col);
-                // Override ::before and ::after color via inline var
-                layer.appendChild(s);
-            }
-
-            // 3. Shooting/falling stars (15)
-            for (let i = 0; i < 15; i++) {
+            // 2. Shooting stars (10)
+            for (let i = 0; i < 10; i++) {
                 const s = document.createElement('div');
                 s.className = 'shooting-star';
                 const sz = 2 + Math.random() * 3;
-                const tail = 30 + Math.random() * 80;
-                const dx = -(200 + Math.random() * 400);
-                const dy = 200 + Math.random() * 400;
-                s.style.cssText = `
-                    left:${20 + Math.random() * 80}vw; top:${Math.random() * 50}vh;
-                    --w:${sz}px; --tail:${tail}px;
-                    --dx:${dx}px; --dy:${dy}px;
-                    --dur:${5 + Math.random() * 7}s;
-                    --delay:${Math.random() * 12}s;
-                    box-shadow: 0 0 ${sz * 3}px ${sz}px rgba(255,255,255,0.8),
-                                0 0 ${sz * 6}px ${sz * 2}px rgba(108,99,255,0.5);
-                `;
+                s.style.cssText = [
+                    `left:${10 + Math.random() * 80}vw`,
+                    `top:${Math.random() * 50}vh`,
+                    `--w:${sz}px`,
+                    `--dx:${-(200 + Math.random() * 300)}px`,
+                    `--dy:${200 + Math.random() * 300}px`,
+                    `--dur:${6 + Math.random() * 6}s`,
+                    `--delay:${Math.random() * 14}s`,
+                    `box-shadow:0 0 ${sz * 3}px ${sz}px rgba(255,255,255,0.8),0 0 ${sz * 5}px ${sz * 2}px rgba(108,99,255,0.4)`,
+                ].join(';');
                 layer.appendChild(s);
             }
 
-            // 4. Glitter rising dots (40) — colorful micro particles
-            const glitColors = ['#6c63ff', '#ff6584', '#ffd700', '#80ffea', '#ffffff', '#ff9cb8', '#c9b8ff'];
-            for (let i = 0; i < 40; i++) {
+            // 3. Glitter micro-dots (25)
+            const glitColors = ['#6c63ff', '#ff6584', '#ffd700', '#80ffea', '#fff', '#a78bfa'];
+            for (let i = 0; i < 25; i++) {
                 const s = document.createElement('div');
                 s.className = 'glitter';
-                const sz = 1.5 + Math.random() * 3.5;
+                const sz = 1.5 + Math.random() * 3;
                 const col = glitColors[Math.floor(Math.random() * glitColors.length)];
-                const dx2 = (Math.random() - 0.5) * 60;
-                const dx3 = (Math.random() - 0.5) * 80;
-                s.style.cssText = `
-                    left:${Math.random() * 100}vw; top:${40 + Math.random() * 60}vh;
-                    width:${sz}px; height:${sz}px;
-                    background:${col};
-                    box-shadow: 0 0 ${sz * 2}px ${sz}px ${col}88;
-                    --dur:${6 + Math.random() * 8}s;
-                    --delay:${Math.random() * 10}s;
-                    --dx2:${dx2}px; --dx3:${dx3}px;
-                `;
+                s.style.cssText = [
+                    `left:${Math.random() * 100}vw`,
+                    `top:${40 + Math.random() * 55}vh`,
+                    `width:${sz}px`,
+                    `height:${sz}px`,
+                    `background:${col}`,
+                    `box-shadow:0 0 ${sz * 2}px ${sz}px ${col}88`,
+                    `--dur:${7 + Math.random() * 7}s`,
+                    `--delay:${Math.random() * 10}s`,
+                    `--dx2:${(Math.random() - .5) * 60}px`,
+                    `--dx3:${(Math.random() - .5) * 80}px`,
+                ].join(';');
                 layer.appendChild(s);
             }
         }
+
+
 
         // ─── THEME ───
         function applyTheme(theme) {
@@ -804,7 +883,7 @@
         // ─── RENDER ───
         function renderProfile(data) {
             document.getElementById('page-title').textContent =
-                data.metaTitle || `${data.displayName} | BioLink`;
+                data.metaTitle || `${data.displayName} | aiThsLink`;
             document.getElementById('meta-desc').content =
                 data.metaDescription || data.bio || '';
 
@@ -907,7 +986,20 @@
                         <p>Chua co link nao duoc them</p>
                     </div>`;
             }
-        }
+
+            // Game button — always show at bottom
+            const gameBtn = document.createElement('a');
+            gameBtn.href = '/games';
+            gameBtn.className = 'link-btn rounded';
+            gameBtn.style.cssText = 'animation-delay:0.5s;background:linear-gradient(135deg,rgba(108,99,255,0.18),rgba(255,101,132,0.12));border-color:rgba(108,99,255,0.4);margin-top:8px';
+            gameBtn.innerHTML = `
+                <div class="link-icon" style="background:linear-gradient(135deg,#6c63ff,#a855f7);">
+                    <i class="fa-solid fa-gamepad"></i>
+                </div>
+                <span class="link-title">Choi game</span>
+                <i class="fa-solid fa-chevron-right link-arrow"></i>`;
+            linksSection.appendChild(gameBtn);
+        } // end renderProfile
 
         async function loadProfile() {
             const username = getUsername();

@@ -21,17 +21,18 @@
             <p>Admin Panel</p>
         </div>
         <nav class="nav-menu">
-            <button class="nav-item active" onclick="showSection('stats')"><i
+            <button class="nav-item active" onclick="showSection('stats', this)"><i
                     class="fa-solid fa-chart-bar"></i><span>Thống kê</span></button>
-            <button class="nav-item" onclick="showSection('profile')"><i class="fa-solid fa-user"></i><span>Hồ
+            <button class="nav-item" onclick="showSection('profile', this)"><i class="fa-solid fa-user"></i><span>Hồ
                     sơ</span></button>
-            <button class="nav-item" onclick="showSection('links')"><i
+            <button class="nav-item" onclick="showSection('links', this)"><i
                     class="fa-solid fa-link"></i><span>Links</span></button>
-            <button class="nav-item" onclick="showSection('socials')"><i class="fa-solid fa-share-nodes"></i><span>Mạng
+            <button class="nav-item" onclick="showSection('socials', this)"><i
+                    class="fa-solid fa-share-nodes"></i><span>Mạng
                     xã hội</span></button>
-            <button class="nav-item" onclick="showSection('theme')"><i class="fa-solid fa-palette"></i><span>Giao
+            <button class="nav-item" onclick="showSection('theme', this)"><i class="fa-solid fa-palette"></i><span>Giao
                     diện</span></button>
-            <button class="nav-item" onclick="showSection('settings')"><i class="fa-solid fa-gear"></i><span>Cài
+            <button class="nav-item" onclick="showSection('settings', this)"><i class="fa-solid fa-gear"></i><span>Cài
                     đặt</span></button>
         </nav>
         <div class="sidebar-bottom">
@@ -291,7 +292,7 @@
         let editingLinkId = null;
 
         // Auth check
-        const token = localStorage.getItem('biolink_token');
+        const token = localStorage.getItem('aiThsLink_token');
         if (!token) window.location.href = '/admin/';
 
         function authHeader() { return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }; }
@@ -304,11 +305,11 @@
         }
 
         // Navigation
-        function showSection(name) {
+        function showSection(name, btn) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(`section-${name}`).classList.add('active');
-            event.currentTarget.classList.add('active');
+            if (btn) btn.classList.add('active');
         }
 
         // Load all data
@@ -324,7 +325,7 @@
 
         function renderAll() {
             const p = profileData;
-            const user = JSON.parse(localStorage.getItem('biolink_user') || '{}');
+            const user = JSON.parse(localStorage.getItem('aiThsLink_user') || '{}');
 
             // Sidebar
             document.getElementById('sidebarInitial').textContent = (p.displayName || p.username || '?')[0].toUpperCase();
@@ -342,10 +343,11 @@
             document.getElementById('inf-metaTitle').value = p.metaTitle || '';
             document.getElementById('inf-metaDesc').value = p.metaDescription || '';
 
-            // Avatar
+            // Avatar — hỗ trợ base64 data URL
             const ap = document.getElementById('avatarPreview');
             if (p.avatar) {
-                ap.innerHTML = `<img src="${API}${p.avatar}" />`;
+                const avatarSrc = p.avatar.startsWith('data:') ? p.avatar : `${API}${p.avatar}`;
+                ap.innerHTML = `<img src="${avatarSrc}" />`;
             } else {
                 ap.textContent = (p.displayName || p.username || '?')[0].toUpperCase();
             }
@@ -405,7 +407,8 @@
             const data = await res.json();
             if (res.ok) {
                 toast('Upload ảnh thành công! 🎉');
-                document.getElementById('avatarPreview').innerHTML = `<img src="${API}${data.url}" />`;
+                const avatarSrc = data.url.startsWith('data:') ? data.url : `${API}${data.url}`;
+                document.getElementById('avatarPreview').innerHTML = `<img src="${avatarSrc}" />`;
                 profileData.avatar = data.url;
             } else toast(data.message, 'error');
         }
@@ -625,8 +628,8 @@
         }
 
         function logout() {
-            localStorage.removeItem('biolink_token');
-            localStorage.removeItem('biolink_user');
+            localStorage.removeItem('aiThsLink_token');
+            localStorage.removeItem('aiThsLink_user');
             window.location.href = '/admin/';
         }
 

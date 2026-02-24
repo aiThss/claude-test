@@ -20,55 +20,7 @@ function toDataUrl(file) {
     return `data:${file.mimetype};base64,${b64}`;
 }
 
-// ========== PUBLIC ROUTES ==========
-
-// GET /api/profile/:username - Public profile view (must NOT match 'admin')
-router.get('/:username', async (req, res) => {
-    const { username } = req.params;
-    if (username === 'admin') return res.status(404).json({ message: 'Not found' });
-    try {
-        const profile = await Profile.findOne({ username });
-        if (!profile) {
-            return res.status(404).json({ message: 'Khong tim thay profile' });
-        }
-
-        // Increment views
-        await Profile.findByIdAndUpdate(profile._id, { $inc: { totalViews: 1 } });
-
-        const publicData = {
-            username: profile.username,
-            displayName: profile.displayName,
-            bio: profile.bio,
-            avatar: profile.avatar,
-            coverImage: profile.coverImage,
-            theme: profile.theme,
-            links: profile.links.filter(l => l.active).sort((a, b) => a.order - b.order),
-            socials: profile.socials.filter(s => s.active),
-            metaTitle: profile.metaTitle,
-            metaDescription: profile.metaDescription
-        };
-
-        res.json(publicData);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Loi server' });
-    }
-});
-
-// POST /api/profile/:username/click/:linkId - Track link click
-router.post('/:username/click/:linkId', async (req, res) => {
-    try {
-        await Profile.updateOne(
-            { username: req.params.username, 'links._id': req.params.linkId },
-            { $inc: { 'links.$.clicks': 1 } }
-        );
-        res.json({ success: true });
-    } catch (error) {
-        res.status(500).json({ message: 'Loi server' });
-    }
-});
-
-// ========== ADMIN ROUTES (require auth) ==========
+// ========== ADMIN ROUTES (require auth) — PHẢI đặt TRƯỚC /:username ==========
 
 // GET /api/profile/admin/me - Get full profile for admin
 router.get('/admin/me', auth, async (req, res) => {
@@ -78,6 +30,24 @@ router.get('/admin/me', auth, async (req, res) => {
         res.json(profile);
     } catch (error) {
         res.status(500).json({ message: 'Loi server' });
+    }
+});
+
+// GET /api/profile/admin/stats - Get stats
+router.get('/admin/stats', auth, async (req, res) => {
+    try {
+        const profile = await Profile.findById(req.user.id).select('totalViews links');
+        const totalClicks = profile.links.reduce((sum, l) => sum + (l.clicks || 0), 0);
+        res.json({
+            totalViews: profile.totalViews,
+            totalClicks,
+            links: profile.links.map(l => ({
+                title: l.title,
+                clicks: l.clicks || 0
+            }))
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi server' });
     }
 });
 
@@ -130,13 +100,10 @@ router.post('/admin/upload/cover', auth, upload.single('cover'), async (req, res
         const dataUrl = toDataUrl(req.file);
         await Profile.findByIdAndUpdate(req.user.id, { coverImage: dataUrl });
         res.json({ message: 'Upload cover thanh cong!', url: dataUrl });
-
     } catch (error) {
         res.status(500).json({ message: 'Lỗi server' });
     }
 });
-
-// ========== LINKS CRUD ==========
 
 // POST /api/profile/admin/links - Add link
 router.post('/admin/links', auth, async (req, res) => {
@@ -152,6 +119,22 @@ router.post('/admin/links', auth, async (req, res) => {
         profile.links.push({ title, url, icon: icon || '', order: maxOrder });
         await profile.save();
         res.status(201).json({ message: 'Thêm link thành công!', links: profile.links });
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi server' });
+    }
+});
+
+// PUT /api/profile/admin/links/reorder - Reorder links (PHẢI trước /admin/links/:linkId)
+router.put('/admin/links/reorder', auth, async (req, res) => {
+    try {
+        const { order } = req.body; // array of { id, order }
+        const profile = await Profile.findById(req.user.id);
+        order.forEach(({ id, order: newOrder }) => {
+            const link = profile.links.id(id);
+            if (link) link.order = newOrder;
+        });
+        await profile.save();
+        res.json({ message: 'Sắp xếp lại thành công!', links: profile.links });
     } catch (error) {
         res.status(500).json({ message: 'Lỗi server' });
     }
@@ -189,24 +172,6 @@ router.delete('/admin/links/:linkId', auth, async (req, res) => {
     }
 });
 
-// PUT /api/profile/admin/links/reorder - Reorder links
-router.put('/admin/links/reorder', auth, async (req, res) => {
-    try {
-        const { order } = req.body; // array of { id, order }
-        const profile = await Profile.findById(req.user.id);
-        order.forEach(({ id, order: newOrder }) => {
-            const link = profile.links.id(id);
-            if (link) link.order = newOrder;
-        });
-        await profile.save();
-        res.json({ message: 'Sắp xếp lại thành công!', links: profile.links });
-    } catch (error) {
-        res.status(500).json({ message: 'Lỗi server' });
-    }
-});
-
-// ========== SOCIALS CRUD ==========
-
 // PUT /api/profile/admin/socials - Update all socials
 router.put('/admin/socials', auth, async (req, res) => {
     try {
@@ -222,21 +187,50 @@ router.put('/admin/socials', auth, async (req, res) => {
     }
 });
 
-// GET /api/profile/admin/stats - Get stats
-router.get('/admin/stats', auth, async (req, res) => {
+// ========== PUBLIC ROUTES ==========
+
+// GET /api/profile/:username/click/:linkId - Track link click
+router.post('/:username/click/:linkId', async (req, res) => {
     try {
-        const profile = await Profile.findById(req.user.id).select('totalViews links');
-        const totalClicks = profile.links.reduce((sum, l) => sum + (l.clicks || 0), 0);
-        res.json({
-            totalViews: profile.totalViews,
-            totalClicks,
-            links: profile.links.map(l => ({
-                title: l.title,
-                clicks: l.clicks || 0
-            }))
-        });
+        await Profile.updateOne(
+            { username: req.params.username, 'links._id': req.params.linkId },
+            { $inc: { 'links.$.clicks': 1 } }
+        );
+        res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ message: 'Lỗi server' });
+        res.status(500).json({ message: 'Loi server' });
+    }
+});
+
+// GET /api/profile/:username - Public profile view (PHẢI đặt CUỐI CÙNG)
+router.get('/:username', async (req, res) => {
+    const { username } = req.params;
+    try {
+        const profile = await Profile.findOne({ username });
+        if (!profile) {
+            return res.status(404).json({ message: 'Khong tim thay profile' });
+        }
+
+        // Increment views
+        await Profile.findByIdAndUpdate(profile._id, { $inc: { totalViews: 1 } });
+
+        const publicData = {
+            username: profile.username,
+            displayName: profile.displayName,
+            bio: profile.bio,
+            avatar: profile.avatar,
+            coverImage: profile.coverImage,
+            theme: profile.theme,
+            links: profile.links.filter(l => l.active).sort((a, b) => a.order - b.order),
+            socials: profile.socials.filter(s => s.active),
+            metaTitle: profile.metaTitle,
+            metaDescription: profile.metaDescription
+        };
+
+        res.json(publicData);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Loi server' });
     }
 });
 
